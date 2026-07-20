@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#090d12" />
+  <meta name="description" content="Mobile-first frozen dessert recipe builder and troubleshooting assistant for Ninja CREAMi machines." />
+  <title>PintLogic</title>
+  <style>
+*{box-sizing:border-box}
+:root{--bg:#090d12;--panel:#121821;--panel2:#171f2a;--line:#2a3545;--text:#f5f7fa;--muted:#9aa7b8;--accent:#7dd3fc;--accent2:#38bdf8;--success:#6ee7b7;--warning:#fbbf24;--danger:#fb7185;--dangerbg:rgba(127,29,29,.34)}
+html{background:var(--bg)}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at top right,rgba(56,189,248,.12),transparent 30rem),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}.full{width:100%}
+.app-shell{width:100%;max-width:760px;min-height:100vh;margin:0 auto;padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:calc(15px + env(safe-area-inset-top)) 18px 13px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(9,13,18,.86);backdrop-filter:blur(18px)}
+h1,h2,h3,p{margin-top:0}h1{margin-bottom:0;font-size:1.45rem;letter-spacing:-.03em}h2{margin-bottom:0;font-size:1.55rem;letter-spacing:-.035em}h3{font-size:1.06rem;letter-spacing:-.02em}.eyebrow,.section-kicker{display:block;margin-bottom:4px;color:var(--accent);font-size:.68rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase}
+.icon-btn,.back-btn{border:1px solid var(--line);border-radius:14px;color:var(--text);background:var(--panel)}.icon-btn{width:42px;height:42px;font-size:1.25rem}.back-btn{width:42px;height:42px;font-size:2rem;line-height:1}
+.model-bar{padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(18,24,33,.7)}.model-bar label{display:grid;gap:7px}.model-bar label>span{color:var(--muted);font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em}.model-summary{margin-top:7px;color:var(--muted);font-size:.78rem;line-height:1.4}
+main{padding:18px}.screen{display:none;animation:fade .18s ease}.screen.active{display:block}@keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+.hero-card{display:grid;grid-template-columns:1fr 110px;gap:12px;align-items:center;min-height:200px;padding:22px;border:1px solid rgba(125,211,252,.2);border-radius:26px;background:linear-gradient(145deg,rgba(125,211,252,.12),rgba(18,24,33,.95) 47%),var(--panel)}.hero-copy h2{margin-bottom:10px;font-size:clamp(1.75rem,7vw,2.45rem);line-height:1.02}.hero-copy p{margin:0;color:var(--muted);line-height:1.5}
+.pint-visual{display:flex;flex-direction:column;align-items:center}.pint-lid{width:92px;height:17px;border:2px solid #dce6ef;border-radius:10px 10px 6px 6px;background:#eef5fb}.pint-cup{position:relative;overflow:hidden;width:84px;height:110px;margin-top:-1px;border:2px solid rgba(255,255,255,.75);border-top:0;border-radius:0 0 20px 20px;background:rgba(255,255,255,.06)}.pint-fill{position:absolute;inset:auto 0 0;height:72%;background:linear-gradient(#bdefff,#67d0fb);opacity:.86}.pint-cup span{position:absolute;inset:0;display:grid;place-items:center;color:#06121a;font-size:.72rem;font-weight:900;letter-spacing:.1em}
+.primary-action{width:100%;display:flex;align-items:center;gap:14px;margin:18px 0;padding:17px;border:0;border-radius:20px;color:#041018;background:linear-gradient(135deg,var(--accent),var(--accent2));text-align:left}.primary-action strong,.feature-card strong{display:block}.primary-action small,.feature-card small{display:block;margin-top:4px;opacity:.72;line-height:1.35}.action-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;background:rgba(0,0,0,.14);font-size:1.25rem}
+.feature-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.feature-card{min-height:138px;padding:16px;border:1px solid var(--line);border-radius:20px;color:var(--text);background:var(--panel);text-align:left}.feature-icon{width:38px;height:38px;display:grid;place-items:center;margin-bottom:17px;border-radius:12px;color:var(--accent);background:rgba(125,211,252,.09);font-size:1.25rem;font-weight:800}
+.screen-heading{display:flex;align-items:center;gap:12px;margin-bottom:18px}.progress-wrap{margin-bottom:16px}.progress-label{display:flex;justify-content:space-between;margin-bottom:8px;color:var(--muted);font-size:.78rem}.progress-track{height:7px;overflow:hidden;border-radius:999px;background:var(--panel)}.progress-bar{height:100%;width:20%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .2s}
+.builder-step{display:none}.builder-step.active{display:block}.question-card,.result-card,.live-card,.quick-card{padding:18px;border:1px solid var(--line);border-radius:22px;background:var(--panel)}.question-card h3{margin-bottom:16px}.section-heading-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.model-note,.model-option-note{padding:12px;border:1px solid var(--line);border-radius:14px;color:var(--muted);background:var(--panel2);font-size:.8rem;line-height:1.45}.model-options{display:grid;gap:9px;margin:2px 0 14px}
+.field-label{display:grid;gap:8px;margin-bottom:14px;color:var(--muted);font-size:.84rem;font-weight:800}input[type=text],input[type=number],select,.search-input{width:100%;min-height:48px;padding:0 13px;border:1px solid var(--line);border-radius:14px;color:var(--text);background:var(--panel2);outline:none}input:focus,select:focus{border-color:var(--accent2)}.switch-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;padding:13px;border:1px solid var(--line);border-radius:16px;background:var(--panel2)}.switch-row span{flex:1}.switch-row small{display:block;margin-top:4px;color:var(--muted)}.switch-row input{width:42px;height:24px;accent-color:var(--accent2)}
+.primary-btn,.secondary-btn,.compact-btn{min-height:48px;padding:12px 16px;border-radius:14px;font-weight:900}.primary-btn{border:0;color:#03111a;background:linear-gradient(135deg,var(--accent),var(--accent2))}.secondary-btn,.compact-btn{border:1px solid var(--line);color:var(--text);background:var(--panel2)}.compact-btn,.secondary-btn.compact{min-height:38px;padding:8px 11px;font-size:.76rem}.step-actions,.result-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.primary-btn:disabled,.secondary-btn:disabled{opacity:.35}
+.formula-coach{margin-bottom:12px;padding:16px;border-radius:20px;border:2px solid}.formula-coach.danger{border-color:rgba(251,113,133,.72);background:linear-gradient(145deg,rgba(127,29,29,.48),rgba(46,13,19,.82))}.formula-coach.warning{border-color:rgba(251,191,36,.58);background:rgba(120,53,15,.25)}.formula-coach.safe{border-color:rgba(110,231,183,.45);background:rgba(6,78,59,.22)}.coach-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.coach-head h3{margin-bottom:5px}.coach-status{flex:0 0 auto;padding:6px 9px;border-radius:999px;font-size:.67rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em}.danger .coach-status{color:#fecdd3;background:rgba(251,113,133,.15)}.warning .coach-status{color:#fde68a;background:rgba(251,191,36,.13)}.safe .coach-status{color:#bbf7d0;background:rgba(110,231,183,.12)}.coach-message{margin:0;color:#fff;line-height:1.5}.coach-fixes{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.coach-fixes button{padding:8px 10px;border:1px solid rgba(255,255,255,.18);border-radius:999px;color:var(--text);background:rgba(255,255,255,.07);font-size:.74rem;font-weight:800}
+.measurement-panel{margin:12px 0 16px;padding:13px;border:1px solid var(--line);border-radius:16px;background:var(--panel2)}.measurement-panel>strong{display:block;margin-bottom:9px}.measurement-checks{display:grid;gap:8px}.measurement-checks label{display:flex;align-items:center;gap:8px;color:var(--text);font-size:.83rem}.measurement-checks input{width:19px;height:19px;accent-color:var(--accent2)}.measurement-panel small{display:block;margin-top:9px;color:var(--muted);line-height:1.4}
+.pairing-panel{margin:14px 0 16px;padding:15px;border:1px solid rgba(125,211,252,.28);border-radius:18px;background:rgba(125,211,252,.045)}.pairing-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:11px}.pairing-panel-head h3{margin:0 0 4px}.pairing-panel-head p{margin:0;color:var(--muted);font-size:.75rem;line-height:1.4}.pairing-live{flex:0 0 auto;padding:5px 8px;border-radius:999px;color:var(--accent);background:rgba(125,211,252,.09);font-size:.63rem;font-weight:900;text-transform:uppercase;letter-spacing:.07em}.pairing-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.pairing-card{display:flex;flex-direction:column;align-items:flex-start;min-height:128px;padding:12px;border:1px solid var(--line);border-radius:15px;color:var(--text);background:var(--panel2);text-align:left}.pairing-card:hover{border-color:var(--accent2)}.pairing-card strong{display:block;margin:6px 0 5px;font-size:.87rem}.pairing-card small{display:block;color:var(--muted);font-size:.72rem;line-height:1.4}.pair-kind{display:inline-flex;padding:4px 7px;border-radius:999px;color:var(--accent);background:rgba(125,211,252,.08);font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}.pair-kind.fix{color:#fecdd3;background:rgba(251,113,133,.1)}.pair-kind.balance{color:#fde68a;background:rgba(251,191,36,.09)}.pair-add{display:block;margin-top:auto;padding-top:9px;color:var(--accent);font-size:.69rem;font-weight:900}.pairing-empty{padding:12px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);font-size:.78rem;line-height:1.45}.picker-item.recommended{border-color:rgba(125,211,252,.42)}.picker-recommend{display:inline-flex;margin-top:7px;padding:3px 6px;border-radius:999px;color:var(--accent);background:rgba(125,211,252,.09);font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+.ingredient-browser{margin-top:15px;border:1px solid var(--line);border-radius:18px;overflow:hidden}.category-tabs,.guide-category-tabs{display:flex;gap:7px;overflow-x:auto;padding:10px;background:rgba(255,255,255,.025);scrollbar-width:none}.category-tabs::-webkit-scrollbar,.guide-category-tabs::-webkit-scrollbar{display:none}.category-tabs button,.guide-category-tabs button{flex:0 0 auto;padding:8px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted);background:var(--panel2);font-size:.72rem;font-weight:900}.category-tabs button.active,.guide-category-tabs button.active{color:#061018;border-color:var(--accent);background:var(--accent)}
+.ingredient-picker{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:10px}.picker-item{position:relative;min-height:94px;padding:12px;border:1px solid var(--line);border-radius:14px;color:var(--text);background:var(--panel2);text-align:left}.picker-item.selected{border-color:var(--accent2);background:rgba(56,189,248,.08)}.picker-item strong{display:block;padding-right:22px;font-size:.84rem}.picker-item small{display:block;margin-top:5px;color:var(--muted);font-size:.7rem;line-height:1.35}.picker-check{position:absolute;right:9px;top:9px;width:21px;height:21px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;font-size:.72rem}.picker-item.selected .picker-check{color:#041018;border-color:var(--accent);background:var(--accent)}
+.selected-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0 10px}.selected-heading strong{display:block}.selected-heading small{display:block;margin-top:3px;color:var(--muted);font-size:.72rem}.ingredient-rows{display:grid;gap:11px}.empty-formula{padding:22px 14px;border:1px dashed var(--line);border-radius:16px;color:var(--muted);text-align:center;line-height:1.5}
+.ingredient-row{padding:13px;border:1px solid var(--line);border-radius:18px;background:var(--panel2)}.ingredient-row-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.ingredient-row-title strong{display:block}.ingredient-row-title small{display:block;margin-top:4px;color:var(--muted);font-size:.7rem;line-height:1.35}.category-tag{display:inline-flex;margin-top:7px;padding:4px 7px;border-radius:999px;color:var(--accent);background:rgba(125,211,252,.08);font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.07em}.remove-ingredient{width:38px;height:38px;border:1px solid rgba(251,113,133,.3);border-radius:12px;color:#fecdd3;background:rgba(251,113,133,.07);font-size:1.15rem}.measurement-groups{display:grid;gap:10px;margin-top:12px}.measure-group{padding:10px;border:1px solid var(--line);border-radius:14px;background:rgba(9,13,18,.35)}.measure-label{display:flex;justify-content:space-between;margin-bottom:8px;color:var(--muted);font-size:.69rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em}.house-grid{display:grid;grid-template-columns:70px 92px minmax(92px,1fr);gap:7px}.metric-grid{display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:7px}.measure-group input,.measure-group select{min-height:43px;padding:0 9px}.conversion-line{margin-top:8px;color:var(--muted);font-size:.72rem;line-height:1.4}.measure-group.active-source{border-color:rgba(125,211,252,.45)}
+.formula-watch{margin-top:12px;padding:16px;border:1px solid var(--line);border-radius:20px;background:var(--panel)}.formula-watch.watch-danger{border-color:rgba(251,113,133,.5)}.formula-watch.watch-warning{border-color:rgba(251,191,36,.42)}.formula-watch.watch-safe{border-color:rgba(110,231,183,.35)}.watch-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.watch-header h3{margin:0}.risk-pill{padding:6px 9px;border-radius:999px;font-size:.67rem;font-weight:900;text-transform:uppercase}.risk-pill.danger{color:#fecdd3;background:rgba(251,113,133,.11)}.risk-pill.warning{color:#fde68a;background:rgba(251,191,36,.1)}.risk-pill.safe{color:#bbf7d0;background:rgba(110,231,183,.1)}.formula-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px}.formula-metric{padding:10px;border:1px solid var(--line);border-radius:13px;background:var(--panel2)}.formula-metric span{display:block;color:var(--muted);font-size:.67rem;font-weight:800}.formula-metric strong{display:block;margin-top:4px}.warning-list{display:grid;gap:8px}.formula-warning{padding:11px;border-radius:13px;font-size:.81rem;line-height:1.45}.formula-warning strong{display:block;margin-bottom:3px}.formula-warning.danger{color:#fecdd3;border:1px solid rgba(251,113,133,.3);background:rgba(251,113,133,.08)}.formula-warning.warning{color:#fde68a;border:1px solid rgba(251,191,36,.26);background:rgba(251,191,36,.07)}.formula-warning.info{color:#d9f2ff;border:1px solid rgba(125,211,252,.2);background:rgba(125,211,252,.06)}
+.inline-number-unit{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px}.inline-number-unit span{color:var(--muted)}.mix-in-summary{display:grid;gap:8px;margin-top:10px}.mix-in-card{padding:11px;border:1px solid var(--line);border-radius:14px;background:var(--panel2)}.mix-in-card strong{display:block}.mix-in-card small{display:block;margin-top:4px;color:var(--muted);line-height:1.4}
+.program-recommendation{margin-bottom:14px;padding:13px;border:1px solid rgba(125,211,252,.23);border-radius:15px;background:rgba(125,211,252,.06);line-height:1.45}.program-recommendation strong{display:block;color:var(--accent)}.machine-options{display:grid;gap:9px;margin-top:12px}.review-grid{display:grid;gap:10px}.review-block{padding:13px;border:1px solid var(--line);border-radius:15px;background:var(--panel2)}.review-block>span{display:block;margin-bottom:5px;color:var(--muted);font-size:.67rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em}.review-block p,.review-block ul{margin:0;line-height:1.5}.result-card{margin-top:16px}.result-badge{margin-bottom:8px;color:var(--success);font-size:.69rem;font-weight:900;letter-spacing:.12em}.result-section{padding:13px 0;border-top:1px solid var(--line)}.result-section p,.result-section li{color:var(--muted);line-height:1.5}.result-section strong{display:block;margin-bottom:5px}
+.stack-form{display:grid;gap:14px}.issue-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.issue-grid button{min-height:86px;padding:12px;border:1px solid var(--line);border-radius:16px;color:var(--text);background:var(--panel);font-weight:900}.issue-grid button.selected{border-color:var(--accent2);background:rgba(56,189,248,.08)}.danger-box{padding:12px;border:1px solid rgba(251,113,133,.3);border-radius:14px;color:#fecdd3;background:rgba(251,113,133,.08);line-height:1.45}.model-chip,.recipe-risk{display:inline-flex;margin:0 5px 9px 0;padding:5px 8px;border-radius:999px;font-size:.65rem;font-weight:900}.model-chip{color:var(--accent);background:rgba(125,211,252,.08)}.recipe-risk{text-transform:uppercase}.recipe-risk.safe{color:var(--success);background:rgba(110,231,183,.08)}.recipe-risk.warning{color:#fde68a;background:rgba(251,191,36,.08)}.recipe-risk.danger{color:#fecdd3;background:rgba(251,113,133,.08)}
+.live-card{min-height:320px;display:flex;flex-direction:column;justify-content:center;text-align:center}.live-step-number{width:54px;height:54px;display:grid;place-items:center;margin:0 auto 18px;border-radius:50%;color:#041018;background:var(--accent);font-size:1.3rem;font-weight:900}.live-card p{color:var(--muted);line-height:1.55}.live-options{display:grid;gap:10px;margin-top:14px}.live-options button{min-height:48px;border:1px solid var(--line);border-radius:14px;color:var(--text);background:var(--panel2);font-weight:900}.live-options button.primary{color:#061018;border:0;background:var(--accent)}#restartLiveBtn{margin-top:12px}
+.recipe-list,.info-list,.quick-stack{display:grid;gap:12px}.recipe-item,.info-item{padding:16px;border:1px solid var(--line);border-radius:18px;background:var(--panel)}.recipe-meta,.info-item p,.quick-card p{color:var(--muted);line-height:1.5}.recipe-actions{display:flex;gap:8px;margin-top:12px}.recipe-actions button{flex:1;min-height:40px;border:1px solid var(--line);border-radius:12px;color:var(--text);background:var(--panel2)}.search-input{margin-bottom:10px}.info-item .guide-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}.guide-tags span{padding:4px 7px;border-radius:999px;color:var(--muted);background:var(--panel2);font-size:.65rem}.quick-card span{display:inline-block;margin-bottom:9px;color:var(--accent);font-size:.71rem;font-weight:900;letter-spacing:.1em}.empty-state{padding:28px 18px;border:1px dashed var(--line);border-radius:18px;color:var(--muted);text-align:center}
+.bottom-nav{position:fixed;z-index:30;left:50%;bottom:0;transform:translateX(-50%);width:min(760px,100%);display:grid;grid-template-columns:repeat(4,1fr);padding:9px 12px calc(9px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.08);background:rgba(9,13,18,.95);backdrop-filter:blur(18px)}.bottom-nav button{display:grid;justify-items:center;gap:4px;border:0;color:var(--muted);background:transparent;font-size:.72rem}.bottom-nav button span{font-size:1.2rem}.bottom-nav button.active{color:var(--accent)}
+@media(min-width:620px){main{padding:24px}.feature-grid{grid-template-columns:repeat(3,1fr)}.ingredient-picker{grid-template-columns:repeat(3,minmax(0,1fr))}.measurement-groups{grid-template-columns:1fr 1fr}.issue-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:390px){.ingredient-picker,.pairing-grid{grid-template-columns:1fr}.house-grid{grid-template-columns:62px 82px minmax(80px,1fr)}.formula-metrics{grid-template-columns:1fr}.hero-card{grid-template-columns:1fr 92px;padding:18px}.pint-lid{width:80px}.pint-cup{width:73px;height:98px}}
+
+@media(max-width:520px){.coach-head{display:block}.coach-status{display:inline-flex;margin-top:10px}.coach-head h3{max-width:none}.formula-coach{padding:14px}}
+
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow" id="modelEyebrow">FROZEN DESSERT RECIPE ASSISTANT</div>
+        <h1>PintLogic</h1>
+      </div>
+      <button class="icon-btn" id="resetAppBtn" aria-label="Reset current screen">↺</button>
+    </header>
+
+    <section class="model-bar" aria-label="Machine selection">
+      <label for="modelSelect">
+        <span>Your machine</span>
+        <select id="modelSelect">
+          <option value="nc500">CREAMi Deluxe — NC500/NC501</option>
+          <option value="nc600">CREAMi XL — NC600/NC601</option>
+          <option value="nc300">CREAMi Classic — NC299/NC300/NC301/NC350/NC351</option>
+          <option value="nc700">CREAMi Scoop &amp; Swirl — NC700/NC701</option>
+          <option value="breeze">CREAMi Breeze — NC100/NC200 series</option>
+        </select>
+      </label>
+      <div class="model-summary" id="modelSummary"></div>
+    </section>
+
+    <main>
+      <section class="screen active" id="homeScreen">
+        <div class="hero-card">
+          <div class="hero-copy">
+            <h2>Build the formula before you freeze it.</h2>
+            <p>Choose ingredients, catch texture problems, and get a machine-specific spin plan.</p>
+          </div>
+          <div class="pint-visual" aria-hidden="true">
+            <div class="pint-lid"></div>
+            <div class="pint-cup"><div class="pint-fill"></div><span id="pintModel">NC501</span></div>
+          </div>
+        </div>
+
+        <button class="primary-action" data-route="builder">
+          <span class="action-icon">＋</span>
+          <span><strong>Build a Pint</strong><small>Start with your exact ingredients</small></span>
+        </button>
+
+        <div class="feature-grid">
+          <button class="feature-card" data-route="live"><span class="feature-icon">▶</span><strong>Start a Frozen Pint</strong><small>Live processing assistant</small></button>
+          <button class="feature-card" data-route="setting"><span class="feature-icon">◎</span><strong>Which Setting?</strong><small id="settingFeatureText">Choose the correct program</small></button>
+          <button class="feature-card" data-route="fix"><span class="feature-icon">⚠</span><strong>Fix My Pint</strong><small>Troubleshoot texture</small></button>
+          <button class="feature-card" data-route="recipes"><span class="feature-icon">★</span><strong>My Recipes</strong><small>Saved formulas and notes</small></button>
+          <button class="feature-card" data-route="ingredients"><span class="feature-icon">◫</span><strong>Ingredient Guide</strong><small>Sorted by ingredient type</small></button>
+          <button class="feature-card" data-route="quick"><span class="feature-icon">≡</span><strong>Quick Reference</strong><small>Programs and common fixes</small></button>
+        </div>
+      </section>
+
+      <section class="screen" id="builderScreen">
+        <div class="screen-heading">
+          <button class="back-btn" data-route="home">‹</button>
+          <div><span class="eyebrow" id="builderModelEyebrow">RECIPE BUILDER</span><h2>Build a Pint</h2></div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-label"><span id="builderStepLabel">Step 1 of 5</span><span id="builderPercent">20%</span></div>
+          <div class="progress-track"><div class="progress-bar" id="builderProgress"></div></div>
+        </div>
+
+        <form id="builderForm">
+          <div class="builder-step active" data-step="1">
+            <div class="question-card">
+              <div class="section-kicker">START THE RECIPE</div>
+              <h3>Choose the recipe and machine setup</h3>
+              <label class="field-label">Recipe name
+                <input type="text" id="recipeName" placeholder="Example: Chocolate protein pint" />
+              </label>
+              <label class="field-label">Recipe type
+                <select id="builderRecipeStyle"></select>
+              </label>
+              <label class="field-label">Main goal
+                <select id="targetProfile">
+                  <option value="balanced">Balanced texture</option>
+                  <option value="high-protein" selected>High protein</option>
+                  <option value="low-calorie">Lower calorie</option>
+                  <option value="dairy-free">Dairy-free</option>
+                  <option value="fruit-forward">Fruit-forward</option>
+                  <option value="indulgent">Rich / indulgent</option>
+                </select>
+              </label>
+              <label class="field-label">Container section
+                <select id="builderBatchMode"></select>
+              </label>
+              <label class="field-label">Starting stage
+                <select id="startingStage">
+                  <option value="new">New base before freezing</option>
+                  <option value="frozen">Already frozen, first spin</option>
+                  <option value="leftover">Frozen leftovers</option>
+                  <option value="rework">Fixing a previous recipe</option>
+                </select>
+              </label>
+              <label class="field-label hidden" id="outputModeField">Finished format
+                <select id="outputMode">
+                  <option value="scoop">Scooped dessert</option>
+                  <option value="softserve">Soft serve / swirl</option>
+                </select>
+              </label>
+              <div id="modelStartOptions" class="model-options"></div>
+              <div class="model-note" id="builderModelNote"></div>
+            </div>
+          </div>
+
+          <div class="builder-step" data-step="2">
+            <div id="formulaCoachTop" class="formula-coach danger" aria-live="polite"></div>
+
+            <div class="question-card">
+              <div class="section-heading-row">
+                <div><div class="section-kicker">FORMULA</div><h3>Choose every ingredient</h3></div>
+                <button type="button" class="compact-btn" id="loadTemplateBtn">Load starter</button>
+              </div>
+
+              <div class="measurement-panel">
+                <strong>Show measurements</strong>
+                <div class="measurement-checks">
+                  <label><input type="checkbox" id="showHousehold" checked /> Cups, tablespoons, teaspoons, scoops</label>
+                  <label><input type="checkbox" id="showWeight" checked /> Grams, ounces, milliliters</label>
+                </div>
+                <small>You can use either system or keep both visible. The last amount you edit is used for the formula check.</small>
+              </div>
+
+              <div class="ingredient-browser">
+                <div class="category-tabs" id="categoryTabs"></div>
+                <div id="ingredientPicker" class="ingredient-picker"></div>
+              </div>
+
+              <section class="pairing-panel" aria-live="polite">
+                <div class="pairing-panel-head">
+                  <div><h3>Smart pairings</h3><p>Changes after every ingredient. Texture corrections are ranked before flavor ideas.</p></div>
+                  <span class="pairing-live">Live</span>
+                </div>
+                <div id="pairingSuggestions" class="pairing-grid"></div>
+              </section>
+
+              <div class="selected-heading">
+                <div><strong>Your formula</strong><small id="selectedIngredientCount">0 ingredients selected</small></div>
+                <button type="button" class="secondary-btn compact" id="clearIngredientsBtn">Clear</button>
+              </div>
+              <div id="ingredientRows" class="ingredient-rows"></div>
+            </div>
+
+            <div id="formulaWatchStep2" class="formula-watch" aria-live="polite"></div>
+          </div>
+
+          <div class="builder-step" data-step="3">
+            <div class="question-card">
+              <div class="section-kicker">TEXTURE & MIX-INS</div>
+              <h3>Choose the finish</h3>
+              <label class="field-label">Preferred texture
+                <select id="textureTarget">
+                  <option value="soft">Soft and immediately spoonable</option>
+                  <option value="scoopable" selected>Scoopable</option>
+                  <option value="dense">Dense / gelato-like</option>
+                  <option value="fluffy">Lighter and fluffy</option>
+                </select>
+              </label>
+              <label class="field-label">Sweetness target
+                <select id="sweetnessTarget">
+                  <option value="low">Low sweetness</option>
+                  <option value="normal" selected>Normal sweetness</option>
+                  <option value="sweet">Dessert-shop sweet</option>
+                </select>
+              </label>
+              <label class="field-label">Freeze time
+                <div class="inline-number-unit"><input type="number" id="freezeHours" min="1" max="72" step="1" value="24" inputmode="decimal" /><span>hours</span></div>
+              </label>
+              <label class="switch-row">
+                <span><strong>Frozen surface will be flat?</strong><small>No raised frozen hump</small></span>
+                <input type="checkbox" id="builderTopFlat" checked />
+              </label>
+              <div class="mix-in-summary" id="mixInSummary"></div>
+            </div>
+            <div id="formulaWatchStep3" class="formula-watch" aria-live="polite"></div>
+          </div>
+
+          <div class="builder-step" data-step="4">
+            <div class="question-card">
+              <div class="section-kicker">MACHINE PLAN</div>
+              <h3>Choose the first cycle</h3>
+              <div class="program-recommendation" id="programRecommendation"></div>
+              <label class="field-label">First program
+                <select id="firstProgramSelect"></select>
+              </label>
+              <label class="field-label" id="builderPortionField">Processing section
+                <select id="builderPortionSelect"></select>
+              </label>
+              <label class="field-label">Re-spin plan
+                <select id="respinPlan">
+                  <option value="inspect" selected>Inspect after the first cycle</option>
+                  <option value="dry">Plan one dry Re-Spin</option>
+                  <option value="liquid">Add liquid only if still dry after Re-Spin</option>
+                  <option value="none">No planned Re-Spin</option>
+                </select>
+              </label>
+              <div class="machine-options" id="machineSpecificOptions"></div>
+            </div>
+            <div id="formulaWatchStep4" class="formula-watch" aria-live="polite"></div>
+          </div>
+
+          <div class="builder-step" data-step="5">
+            <div class="question-card">
+              <div class="section-kicker">FINAL CHECK</div>
+              <h3>Review before freezing</h3>
+              <div id="builderReview"></div>
+            </div>
+            <div id="formulaWatchStep5" class="formula-watch" aria-live="polite"></div>
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="secondary-btn" id="builderBackBtn" disabled>Back</button>
+            <button type="button" class="primary-btn" id="builderNextBtn">Next</button>
+          </div>
+        </form>
+
+        <div class="result-card hidden" id="builderResult">
+          <div class="result-badge">RECIPE PLAN CREATED</div>
+          <h3 id="builderResultTitle"></h3>
+          <div id="builderRecipeDetails"></div>
+          <div class="result-actions">
+            <button class="secondary-btn" id="editBuilderBtn">Edit</button>
+            <button class="primary-btn" id="saveRecipeBtn">Save Recipe</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="settingScreen">
+        <div class="screen-heading"><button class="back-btn" data-route="home">‹</button><div><span class="eyebrow">DECISION ASSISTANT</span><h2>Which Setting?</h2></div></div>
+        <form id="settingForm" class="stack-form">
+          <div class="question-card">
+            <label class="field-label">Recipe type<select name="type" id="settingTypeSelect"></select></label>
+            <label class="field-label" id="portionField">Processing section<select name="portion" id="portionSelect"></select></label>
+            <label class="field-label">What are you doing?<select name="stage"><option value="first">First spin</option><option value="respin">Powdery after first spin</option><option value="mixins">Adding mix-ins</option><option value="leftovers">Frozen leftovers</option></select></label>
+            <label class="switch-row"><span><strong>Completely frozen?</strong><small>Solid throughout</small></span><input type="checkbox" name="frozen" checked /></label>
+            <label class="switch-row"><span><strong>Top is flat?</strong><small>No raised hump</small></span><input type="checkbox" name="flat" checked /></label>
+          </div>
+          <button type="submit" class="primary-btn full">Get Recommendation</button>
+        </form>
+        <div class="result-card hidden" id="settingResult"></div>
+      </section>
+
+      <section class="screen" id="fixScreen">
+        <div class="screen-heading"><button class="back-btn" data-route="home">‹</button><div><span class="eyebrow">TROUBLESHOOTER</span><h2>Fix My Pint</h2></div></div>
+        <div class="issue-grid" id="issueGrid">
+          <button data-issue="powdery">Powdery / crumbly</button><button data-issue="icy">Icy</button><button data-issue="soupy">Soupy</button><button data-issue="gummy">Gummy</button><button data-issue="chalky">Chalky</button><button data-issue="dense">Too dense</button><button data-issue="fluffy">Too fluffy</button><button data-issue="bottom">Bottom still frozen</button><button data-issue="mixins">Mix-ins pulverized</button><button data-issue="noise">Machine bouncing</button>
+        </div>
+        <div class="result-card hidden" id="fixResult"></div>
+      </section>
+
+      <section class="screen" id="liveScreen">
+        <div class="screen-heading"><button class="back-btn" data-route="home">‹</button><div><span class="eyebrow">LIVE MODE</span><h2>Frozen Pint Assistant</h2></div></div>
+        <div class="live-card"><div class="live-step-number" id="liveNumber">1</div><h3 id="liveTitle"></h3><p id="liveBody"></p><div class="live-options" id="liveOptions"></div></div>
+        <button class="secondary-btn full" id="restartLiveBtn">Restart</button>
+      </section>
+
+      <section class="screen" id="recipesScreen">
+        <div class="screen-heading"><button class="back-btn" data-route="home">‹</button><div><span class="eyebrow">TEST LOG</span><h2>My Recipes</h2></div></div>
+        <div id="recipeList" class="recipe-list"></div>
+      </section>
+
+      <section class="screen" id="ingredientsScreen">
+        <div class="screen-heading"><button class="back-btn" data-route="home">‹</button><div><span class="eyebrow">FUNCTIONAL GUIDE</span><h2>Ingredient Guide</h2></div></div>
+        <input class="search-input" id="ingredientSearch" placeholder="Search ingredients or effects..." />
+        <div class="guide-category-tabs" id="guideCategoryTabs"></div>
+        <div class="info-list" id="ingredientList"></div>
+      </section>
+
+      <section class="screen" id="quickScreen">
+        <div class="screen-heading"><button class="back-btn" data-route="home">‹</button><div><span class="eyebrow">QUICK GUIDE</span><h2>Quick Reference</h2></div></div>
+        <div class="quick-stack" id="quickReferenceList"></div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button data-route="home" class="active"><span>⌂</span>Home</button>
+      <button data-route="builder"><span>＋</span>Build</button>
+      <button data-route="fix"><span>⚠</span>Fix</button>
+      <button data-route="recipes"><span>★</span>Saved</button>
+    </nav>
+  </div>
+  <script>
+const screens = {
+  home: document.getElementById('homeScreen'),
+  builder: document.getElementById('builderScreen'),
+  setting: document.getElementById('settingScreen'),
+  fix: document.getElementById('fixScreen'),
+  live: document.getElementById('liveScreen'),
+  recipes: document.getElementById('recipesScreen'),
+  ingredients: document.getElementById('ingredientsScreen'),
+  quick: document.getElementById('quickScreen')
+};
+
+const styleLabels = {
+  'high-protein':'High-protein ice cream', regular:'Traditional ice cream', sorbet:'Sorbet', gelato:'Gelato',
+  milkshake:'Milkshake', 'smoothie-bowl':'Smoothie bowl', 'frozen-yogurt':'Frozen yogurt',
+  'italian-ice':'Italian ice', 'creami-ccino':'Creamiccino', 'frozen-drink':'Frozen drink', slushi:'Slushi',
+  frappe:'Frappe', 'dairy-free':'Dairy-free frozen dessert', 'soft-serve':'Soft serve',
+  'fruit-whip':'Fruit whip', 'frozen-custard':'Frozen custard'
+};
+
+const modelData = {
+  nc500:{name:'CREAMi Deluxe',code:'NC500/NC501',shortCode:'NC501',capacityOz:24,container:'24 oz XL tub',zones:true,
+    styles:['high-protein','regular','sorbet','gelato','milkshake','italian-ice','frozen-yogurt','creami-ccino','frozen-drink','slushi'],
+    programs:['Ice Cream','Lite Ice Cream','Sorbet','Gelato','Milkshake','Italian Ice','Frozen Yogurt','Creamiccino','Frozen Drink','Slushi','Mix-In'],
+    programMap:{'high-protein':'Lite Ice Cream',regular:'Ice Cream',sorbet:'Sorbet',gelato:'Gelato',milkshake:'Milkshake','italian-ice':'Italian Ice','frozen-yogurt':'Frozen Yogurt','creami-ccino':'Creamiccino','frozen-drink':'Frozen Drink',slushi:'Slushi'},
+    note:'Uses a 24 oz XL tub. Choose Full, Top, or Bottom to match the section being processed.'},
+  nc600:{name:'CREAMi XL',code:'NC600/NC601',shortCode:'NC601',capacityOz:24,container:'24 oz XL tub',zones:true,
+    styles:['high-protein','regular','sorbet','gelato','milkshake','frappe','smoothie-bowl','frozen-yogurt','dairy-free'],
+    programs:['Ice Cream','Lite Ice Cream','Sorbet','Gelato','Milkshake','Frappe','Smoothie Bowl','Frozen Yogurt','CreamiFit','Dairy-Free','Mix-In'],
+    programMap:{'high-protein':'CreamiFit',regular:'Ice Cream',sorbet:'Sorbet',gelato:'Gelato',milkshake:'Milkshake',frappe:'Frappe','smoothie-bowl':'Smoothie Bowl','frozen-yogurt':'Frozen Yogurt','dairy-free':'Dairy-Free'},
+    note:'Uses a 24 oz XL tub with section processing and additional CreamiFit and Dairy-Free programs.'},
+  nc300:{name:'CREAMi Classic',code:'NC299/NC300/NC301/NC350/NC351',shortCode:'NC301',capacityOz:16,container:'16 oz pint',zones:false,
+    styles:['high-protein','regular','sorbet','gelato','milkshake','smoothie-bowl'],
+    programs:['Ice Cream','Lite Ice Cream','Sorbet','Gelato','Milkshake','Smoothie Bowl','Mix-In'],
+    programMap:{'high-protein':'Lite Ice Cream',regular:'Ice Cream',sorbet:'Sorbet',gelato:'Gelato',milkshake:'Milkshake','smoothie-bowl':'Smoothie Bowl'},
+    note:'Uses a 16 oz pint and processes the whole remaining frozen section rather than Full, Top, or Bottom zones.'},
+  nc700:{name:'CREAMi Scoop & Swirl',code:'NC700/NC701',shortCode:'NC701',capacityOz:16,container:'16 oz 2-in-1 pint',zones:false,softServe:true,
+    styles:['high-protein','regular','sorbet','gelato','milkshake','frozen-yogurt','soft-serve','fruit-whip','frozen-custard'],
+    programs:['Ice Cream','Lite Ice Cream','Sorbet','Gelato','Milkshake','Mix-In','Soft Serve Ice Cream','Soft Serve Lite Ice Cream','Fruit Whip','Frozen Custard','Frozen Yogurt','CreamiFit'],
+    programMap:{'high-protein':'CreamiFit',regular:'Ice Cream',sorbet:'Sorbet',gelato:'Gelato',milkshake:'Milkshake','frozen-yogurt':'Frozen Yogurt','soft-serve':'Soft Serve Ice Cream','fruit-whip':'Fruit Whip','frozen-custard':'Frozen Custard'},
+    note:'Choose scooped or soft-serve output before building the formula because the program and serving setup differ.'},
+  breeze:{name:'CREAMi Breeze',code:'NC100/NC200 series',shortCode:'BREEZE',capacityOz:16,container:'16 oz Breeze pint',zones:false,
+    styles:['high-protein','regular','sorbet','gelato','milkshake','smoothie-bowl'],
+    programs:['Ice Cream','Lite Ice Cream','Sorbet','Gelato','Milkshake','Smoothie Bowl','Mix-In'],
+    programMap:{'high-protein':'Lite Ice Cream',regular:'Ice Cream',sorbet:'Sorbet',gelato:'Gelato',milkshake:'Milkshake','smoothie-bowl':'Smoothie Bowl'},
+    note:'Legacy controls vary. Confirm the programs printed on the exact machine before processing.'}
+};
+
+const categories = {
+  liquids:'Milks & liquids', fruit:'Fruit & purées', protein:'Protein & dry solids', body:'Binders & thickeners',
+  fats:'Fats & creamy ingredients', sweeteners:'Sweeteners', flavors:'Flavors & add-ins', mixins:'Mix-ins'
+};
+
+const ingredients = {
+  fairlife_skim:{label:'Fairlife fat-free milk',category:'liquids',density:1.04,water:.86,fat:.002,sugar:.03,solid:.14,protein:.065,thin:false,dairy:true,default:[1,0,'cup'],note:'High protein and milk solids with almost no fat. Better than water-based milk, but a protein-heavy recipe can still need body.'},
+  fairlife_2:{label:'Fairlife 2% milk',category:'liquids',density:1.04,water:.84,fat:.02,sugar:.03,solid:.16,protein:.065,dairy:true,default:[1,0,'cup'],note:'Good high-protein base with moderate body and low sugar.'},
+  whole_milk:{label:'Whole milk',category:'liquids',density:1.03,water:.87,fat:.032,sugar:.048,solid:.13,protein:.033,dairy:true,default:[1,0,'cup'],note:'Adds milk solids, fat, and creaminess. More forgiving than skim or nut milk.'},
+  two_percent:{label:'2% milk',category:'liquids',density:1.03,water:.88,fat:.02,sugar:.049,solid:.12,protein:.033,dairy:true,default:[1,0,'cup'],note:'Moderate-fat dairy base. Often works with sugar or another body ingredient.'},
+  skim_milk:{label:'Skim milk',category:'liquids',density:1.04,water:.9,fat:.002,sugar:.05,solid:.10,protein:.034,dairy:true,thin:true,default:[1,0,'cup'],note:'Low fat and high water. More likely to spin icy or powdery without added solids or freezing-point support.'},
+  lactose_free:{label:'Lactose-free milk',category:'liquids',density:1.03,water:.87,fat:.02,sugar:.05,solid:.13,protein:.033,dairy:true,default:[1,0,'cup'],note:'Behaves similarly to the corresponding dairy milk; perceived sweetness may be higher.'},
+  chocolate_milk:{label:'Chocolate milk',category:'liquids',density:1.05,water:.82,fat:.02,sugar:.11,solid:.18,protein:.033,dairy:true,freeze:1,default:[1,0,'cup'],note:'Provides sugar, cocoa, and milk solids. Usually softer than plain low-fat milk.'},
+  evaporated_milk:{label:'Evaporated milk',category:'liquids',density:1.08,water:.74,fat:.075,sugar:.10,solid:.26,protein:.07,dairy:true,support:.2,default:[0,.5,'cup'],note:'Concentrated milk solids improve body and reduce iciness.'},
+  half_half:{label:'Half-and-half',category:'liquids',density:1.01,water:.78,fat:.115,sugar:.04,solid:.22,dairy:true,support:.25,default:[0,.25,'cup'],note:'Adds substantial fat and body without being as heavy as cream.'},
+  protein_shake:{label:'Ready-to-drink protein shake',category:'liquids',density:1.04,water:.84,fat:.02,sugar:.025,solid:.16,protein:.08,dairy:true,default:[1,0,'cup'],note:'Convenient base, but formulas vary. Many still benefit from yogurt, pudding, allulose, or another body ingredient.'},
+  kefir:{label:'Kefir',category:'liquids',density:1.04,water:.84,fat:.02,sugar:.05,solid:.16,protein:.035,dairy:true,support:.25,default:[1,0,'cup'],note:'Adds tang, milk solids, and some body.'},
+  buttermilk:{label:'Buttermilk',category:'liquids',density:1.03,water:.89,fat:.01,sugar:.05,solid:.11,dairy:true,thin:true,default:[1,0,'cup'],note:'Tangy and relatively lean. Pair with sugar, fruit solids, or another texture support.'},
+  almond_milk:{label:'Unsweetened almond milk',category:'liquids',density:1,water:.97,fat:.012,sugar:.005,solid:.03,thin:true,default:[1,0,'cup'],note:'Very high water and low solids. Usually needs meaningful texture support.'},
+  oat_milk:{label:'Oat milk',category:'liquids',density:1.03,water:.88,fat:.018,sugar:.055,solid:.12,default:[1,0,'cup'],note:'More carbohydrate and body than most nut milks, but brand formulas vary.'},
+  soy_milk:{label:'Soy milk',category:'liquids',density:1.02,water:.9,fat:.018,sugar:.025,solid:.10,protein:.033,default:[1,0,'cup'],note:'More protein and solids than almond milk. Still lean unless sweetened or supported.'},
+  cashew_milk:{label:'Cashew milk',category:'liquids',density:1,water:.96,fat:.015,sugar:.01,solid:.04,thin:true,default:[1,0,'cup'],note:'Creamier flavor than almond milk but still generally low in solids.'},
+  coconut_beverage:{label:'Carton coconut milk beverage',category:'liquids',density:1,water:.94,fat:.025,sugar:.01,solid:.06,thin:true,default:[1,0,'cup'],note:'Not the same as canned coconut milk. It is relatively watery and needs support.'},
+  pea_milk:{label:'Pea-protein milk',category:'liquids',density:1.03,water:.88,fat:.035,sugar:.01,solid:.12,protein:.04,default:[1,0,'cup'],note:'Higher protein and body than most plant milks.'},
+  canned_coconut:{label:'Canned coconut milk',category:'liquids',density:1.01,water:.66,fat:.22,sugar:.03,solid:.34,support:.4,default:[0,.5,'cup'],note:'Adds fat and body. Full-fat versions can become rich or waxy in large amounts.'},
+  water:{label:'Water',category:'liquids',density:1,water:1,fat:0,sugar:0,solid:0,thin:true,default:[1,0,'cup'],note:'Adds no solids or body. A water-heavy base requires fruit, sugar, starch, fiber, or stabilizer.'},
+  coffee:{label:'Coffee / cold brew',category:'liquids',density:1,water:.99,fat:0,sugar:0,solid:.01,thin:true,default:[0,.5,'cup'],note:'Mostly water. Treat it as a flavoring liquid unless the formula has enough body elsewhere.'},
+  tea:{label:'Tea',category:'liquids',density:1,water:.99,fat:0,sugar:0,solid:.01,thin:true,default:[0,.5,'cup'],note:'Mostly water. Needs other solids and sweetness for a creamy frozen dessert.'},
+  juice:{label:'Fruit juice',category:'liquids',density:1.05,water:.89,fat:0,sugar:.10,solid:.11,thin:true,fruit:true,freeze:.8,default:[0,.5,'cup'],note:'Adds sugar and flavor but remains high-water. Works better with fruit purée or adequate sugar.'},
+  coconut_water:{label:'Coconut water',category:'liquids',density:1.02,water:.95,fat:0,sugar:.04,solid:.05,thin:true,default:[0,.5,'cup'],note:'Very watery. Use as part of a fruit-forward formula, not the only structural ingredient.'},
+
+  banana:{label:'Banana',category:'fruit',density:.94,water:.75,fat:.003,sugar:.12,solid:.25,support:.6,fruit:true,itemGrams:118,default:[0,.5,'item'],note:'Adds sweetness, fiber, and strong body. It can make the result dense and dominate flavor.'},
+  strawberries:{label:'Strawberries',category:'fruit',density:.96,water:.91,fat:.003,sugar:.05,solid:.09,fruit:true,itemGrams:18,default:[1,0,'cup'],note:'High water and relatively low sugar. Pair with sweetener and body support.'},
+  blueberries:{label:'Blueberries',category:'fruit',density:.72,water:.84,fat:.003,sugar:.10,solid:.16,fruit:true,default:[1,0,'cup'],note:'More solids and sugar than strawberries, but still benefits from a balanced base.'},
+  raspberries:{label:'Raspberries',category:'fruit',density:.52,water:.86,fat:.007,sugar:.045,solid:.14,fruit:true,default:[1,0,'cup'],note:'High fiber and seeds add body but can create a seedy texture.'},
+  mango:{label:'Mango',category:'fruit',density:.69,water:.82,fat:.004,sugar:.14,solid:.18,support:.25,fruit:true,default:[1,0,'cup'],note:'Naturally sweet with useful solids; generally more forgiving than berries.'},
+  pineapple:{label:'Pineapple',category:'fruit',density:.7,water:.86,fat:.001,sugar:.10,solid:.14,fruit:true,default:[1,0,'cup'],note:'High water and acidic. Sugar or banana can improve body.'},
+  peaches:{label:'Peaches',category:'fruit',density:.65,water:.89,fat:.003,sugar:.08,solid:.11,fruit:true,default:[1,0,'cup'],note:'Soft fruit with moderate sugar but high water.'},
+  cherries:{label:'Cherries',category:'fruit',density:.68,water:.82,fat:.003,sugar:.13,solid:.18,fruit:true,default:[1,0,'cup'],note:'Good sugar and solids for fruit bases; pits must be removed.'},
+  applesauce:{label:'Unsweetened applesauce',category:'fruit',density:1.05,water:.88,fat:0,sugar:.10,solid:.12,support:.2,fruit:true,default:[0,.5,'cup'],note:'Adds pectin and body with a mild apple flavor.'},
+  pumpkin:{label:'Pumpkin purée',category:'fruit',density:1.05,water:.9,fat:.001,sugar:.03,solid:.10,support:.25,fruit:true,default:[0,.5,'cup'],note:'Adds fiber and body but little sweetness. Needs sweetener and flavoring.'},
+  avocado:{label:'Avocado',category:'fruit',density:.95,water:.73,fat:.15,sugar:.007,solid:.27,support:.65,fruit:true,itemGrams:150,default:[0,.5,'item'],note:'Adds fat and smooth body with little sugar. Too much can taste vegetal.'},
+  dates:{label:'Dates',category:'fruit',density:.75,water:.2,fat:.004,sugar:.63,solid:.8,freeze:.7,support:.25,fruit:true,itemGrams:24,default:[2,0,'item'],note:'Concentrated sweetness and solids. Blend thoroughly to avoid pieces.'},
+  canned_fruit:{label:'Canned fruit with syrup or juice',category:'fruit',density:1.04,water:.78,fat:0,sugar:.16,solid:.22,freeze:.7,support:.25,fruit:true,default:[1,0,'cup'],note:'The packing liquid contributes sweetness and affects freezing.'},
+  jam:{label:'Jam / preserves',category:'fruit',density:1.25,water:.35,fat:0,sugar:.55,solid:.65,freeze:.8,support:.3,fruit:true,default:[2,0,'tbsp'],note:'Adds fruit flavor, sugar, and pectin. Useful in small amounts.'},
+
+  whey:{label:'Whey protein powder',category:'protein',density:.48,water:.04,fat:.04,sugar:.05,solid:.96,protein:.75,proteinPowder:true,scoopGrams:30,default:[1,0,'scoop'],note:'Adds protein but relatively little thickening. High amounts can become dry or chalky.'},
+  blend:{label:'Whey-casein protein blend',category:'protein',density:.52,water:.04,fat:.04,sugar:.05,solid:.96,protein:.75,proteinPowder:true,casein:true,support:.55,scoopGrams:30,default:[1,0,'scoop'],note:'Usually produces more body than whey alone. Too much can become dense.'},
+  casein:{label:'Casein protein powder',category:'protein',density:.52,water:.04,fat:.02,sugar:.04,solid:.96,protein:.78,proteinPowder:true,casein:true,support:.85,scoopGrams:30,default:[1,0,'scoop'],note:'Strong thickener. Large amounts can become pasty, dense, or chalky.'},
+  plant_protein:{label:'Plant protein powder',category:'protein',density:.48,water:.05,fat:.06,sugar:.04,solid:.95,protein:.7,proteinPowder:true,support:.45,scoopGrams:30,default:[1,0,'scoop'],note:'Can be gritty or earthy. Often benefits from fat, fruit, or stronger flavoring.'},
+  collagen:{label:'Collagen peptides',category:'protein',density:.48,water:.03,fat:0,sugar:0,solid:.97,protein:.9,proteinPowder:true,scoopGrams:20,default:[1,0,'scoop'],note:'Adds protein but little creaminess or thickening. Do not treat it as the main binder.'},
+  milk_powder:{label:'Nonfat dry milk powder',category:'protein',density:.55,water:.04,fat:.01,sugar:.52,solid:.96,protein:.36,support:.5,dairy:true,default:[2,0,'tbsp'],note:'Adds concentrated milk solids, lactose, and protein. Effective for body without much liquid.'},
+  pb_powder:{label:'Powdered peanut butter',category:'protein',density:.45,water:.04,fat:.12,sugar:.12,solid:.96,protein:.45,support:.3,default:[2,0,'tbsp'],note:'Adds peanut flavor and solids with less fat than nut butter.'},
+  cocoa:{label:'Cocoa powder',category:'protein',density:.48,water:.03,fat:.12,sugar:.02,solid:.97,support:.15,default:[2,0,'tbsp'],note:'Adds dry solids and absorbs water. Too much can make the formula dry or bitter.'},
+
+  greek_yogurt:{label:'Greek yogurt',category:'body',density:1.04,water:.78,fat:.02,sugar:.04,solid:.22,protein:.10,support:.75,dairy:true,default:[0,.25,'cup'],note:'Adds protein, acidity, and reliable body. Too much can make the pint tangy or dense.'},
+  cottage_cheese:{label:'Cottage cheese',category:'body',density:1.02,water:.79,fat:.04,sugar:.03,solid:.21,protein:.12,support:.55,dairy:true,default:[0,.25,'cup'],note:'Adds protein and body. Blend completely for a smooth texture.'},
+  pudding:{label:'Instant pudding mix',category:'body',density:.65,water:.02,fat:.02,sugar:.10,solid:.98,support:1.25,pudding:true,default:[1,0,'tbsp'],note:'Starch and emulsifiers add body. Too much can become gummy or pasty.'},
+  guar:{label:'Guar gum',category:'body',density:.55,water:0,fat:0,sugar:0,solid:1,support:12,gum:true,default:[0,.125,'tsp'],note:'Powerful stabilizer. Small amounts reduce iciness; excess becomes gummy.'},
+  xanthan:{label:'Xanthan gum',category:'body',density:.55,water:0,fat:0,sugar:0,solid:1,support:11,gum:true,default:[0,.125,'tsp'],note:'Adds viscosity and suspension. Excess can feel slick or elastic.'},
+  gelatin:{label:'Gelatin',category:'body',density:.65,water:0,fat:0,sugar:0,solid:1,support:2.3,default:[0,.5,'tsp'],note:'Can add body but may become bouncy or gelled. It usually needs dissolving first.'},
+  inulin:{label:'Inulin / chicory fiber',category:'body',density:.55,water:0,fat:0,sugar:0,solid:1,support:.7,default:[1,0,'tbsp'],note:'Adds fiber and creamy body. Larger amounts can cause gastrointestinal discomfort.'},
+  cornstarch:{label:'Cooked cornstarch slurry',category:'body',density:1.05,water:.75,fat:0,sugar:0,solid:.25,support:.8,default:[1,0,'tbsp'],note:'Must be cooked to thicken properly. Raw cornstarch is not an equivalent shortcut.'},
+  chia:{label:'Chia seeds',category:'body',density:.7,water:.05,fat:.31,sugar:0,solid:.95,support:.7,default:[1,0,'tbsp'],note:'Absorbs liquid and adds texture. Whole seeds remain noticeable.'},
+
+  heavy_cream:{label:'Heavy cream',category:'fats',density:.99,water:.58,fat:.36,sugar:.03,solid:.42,support:.45,dairy:true,default:[2,0,'tbsp'],note:'Adds richness and slower melting. Too much can feel heavy or waxy when very cold.'},
+  cream_cheese:{label:'Cream cheese',category:'fats',density:1.02,water:.55,fat:.33,sugar:.03,solid:.45,support:.75,dairy:true,default:[1,0,'tbsp'],note:'Adds fat, emulsification, and body. Useful in lean bases in small amounts.'},
+  nut_butter:{label:'Peanut or nut butter',category:'fats',density:1.1,water:.02,fat:.50,sugar:.08,solid:.98,support:.4,default:[1,0,'tbsp'],note:'Adds fat, flavor, and density. Can overpower delicate flavors.'},
+  coconut_cream:{label:'Coconut cream',category:'fats',density:1,water:.5,fat:.24,sugar:.04,solid:.5,support:.55,default:[2,0,'tbsp'],note:'Dairy-free fat and body. Large amounts may feel waxy.'},
+  egg_yolk:{label:'Pasteurized egg yolk / cooked custard',category:'fats',density:1.03,water:.48,fat:.27,sugar:.004,solid:.52,support:.7,dairy:false,itemGrams:18,default:[1,0,'item'],note:'Adds fat and emulsification. Use pasteurized or properly cooked yolks.'},
+
+  sugar:{label:'Granulated sugar',category:'sweeteners',density:.85,water:0,fat:0,sugar:1,solid:1,freeze:1,default:[2,0,'tbsp'],note:'Sweetens and lowers the freezing point. Very low-sugar formulas freeze harder.'},
+  allulose:{label:'Allulose',category:'sweeteners',density:.75,water:0,fat:0,sugar:0,solid:1,freeze:1.15,default:[1,0,'tbsp'],note:'Strong freezing-point effect with less sweetness than sugar. Too much can make the pint very soft.'},
+  erythritol:{label:'Erythritol',category:'sweeteners',density:.8,water:0,fat:0,sugar:0,solid:1,freeze:.42,default:[1,0,'tbsp'],note:'Adds bulk but can recrystallize and produce a cooling sensation.'},
+  monk_fruit:{label:'Monk fruit / stevia drops',category:'sweeteners',density:1,water:.9,fat:0,sugar:0,solid:.1,freeze:.02,default:[0,.25,'tsp'],note:'Adds sweetness but almost no bulk or freezing-point support.'},
+  honey:{label:'Honey',category:'sweeteners',density:1.42,water:.17,fat:0,sugar:.75,solid:.83,freeze:.8,default:[1,0,'tbsp'],note:'Adds sweetness, flavor, and some softness.'},
+  maple:{label:'Maple syrup',category:'sweeteners',density:1.33,water:.32,fat:0,sugar:.65,solid:.68,freeze:.68,default:[1,0,'tbsp'],note:'Adds sweetness and maple flavor with moderate freezing-point effect.'},
+  agave:{label:'Agave syrup',category:'sweeteners',density:1.37,water:.23,fat:0,sugar:.72,solid:.77,freeze:.8,default:[1,0,'tbsp'],note:'Strong sweetness and useful softness in small amounts.'},
+  corn_syrup:{label:'Corn syrup',category:'sweeteners',density:1.38,water:.2,fat:0,sugar:.65,solid:.8,freeze:.8,default:[1,0,'tbsp'],note:'Helps reduce crystallization and adds chew/body.'},
+  syrup_zero:{label:'Sugar-free flavored syrup',category:'sweeteners',density:1.02,water:.95,fat:0,sugar:0,solid:.05,freeze:.02,thin:true,default:[2,0,'tbsp'],note:'Mostly water and high-intensity sweetener. It does not replace the structural role of sugar.'},
+
+  vanilla:{label:'Vanilla extract',category:'flavors',density:.9,water:.5,fat:0,sugar:0,solid:.5,alcohol:.35,default:[1,0,'tsp'],note:'Strong flavoring; normal amounts do not materially alter texture.'},
+  flavor_extract:{label:'Other flavor extract',category:'flavors',density:.9,water:.5,fat:0,sugar:0,solid:.5,alcohol:.35,default:[0,.5,'tsp'],note:'Potency varies. Start low and adjust before freezing.'},
+  instant_coffee:{label:'Instant coffee / espresso powder',category:'flavors',density:.35,water:.03,fat:0,sugar:0,solid:.97,default:[1,0,'tsp'],note:'Concentrated flavor without adding much water.'},
+  salt:{label:'Salt',category:'flavors',density:1.2,water:0,fat:0,sugar:0,solid:1,default:[0,.125,'tsp'],note:'Small amounts sharpen sweetness and flavor. Too much is difficult to correct.'},
+  cinnamon:{label:'Cinnamon / dry spices',category:'flavors',density:.5,water:.02,fat:.03,sugar:0,solid:.98,default:[0,.5,'tsp'],note:'Dry spices can clump; blend thoroughly.'},
+  alcohol:{label:'Alcohol / liqueur',category:'flavors',density:.95,water:.55,fat:0,sugar:.15,solid:.45,alcohol:1,freeze:2,default:[1,0,'tbsp'],note:'Strongly lowers the freezing point. Too much can prevent the base from freezing firmly.'},
+
+  cookies:{label:'Cookies / sandwich cookies',category:'mixins',density:.55,water:.03,fat:.18,sugar:.35,solid:.97,mixin:true,default:[0,.25,'cup'],note:'Add after the first spin. They soften somewhat and break into smaller pieces during Mix-In.'},
+  cereal:{label:'Cereal',category:'mixins',density:.25,water:.03,fat:.05,sugar:.25,solid:.97,mixin:true,default:[0,.25,'cup'],note:'Add after spinning. It loses crunch over time, especially after refreezing.'},
+  chocolate_chips:{label:'Chocolate chips / chunks',category:'mixins',density:.75,water:.01,fat:.30,sugar:.48,solid:.99,mixin:true,default:[2,0,'tbsp'],note:'Remain firm when frozen. Mini chips or chopped chocolate are easier to eat.'},
+  candy:{label:'Candy pieces',category:'mixins',density:.7,water:.03,fat:.12,sugar:.6,solid:.97,mixin:true,default:[2,0,'tbsp'],note:'Hard candy can become extremely firm; coated candy may fracture during Mix-In.'},
+  nuts:{label:'Nuts',category:'mixins',density:.55,water:.03,fat:.55,sugar:.04,solid:.97,mixin:true,default:[2,0,'tbsp'],note:'Usually retain crunch. Chop large nuts to reduce strain and improve distribution.'},
+  brownie:{label:'Brownie / cake pieces',category:'mixins',density:.65,water:.2,fat:.15,sugar:.32,solid:.8,mixin:true,default:[0,.25,'cup'],note:'Soft pieces distribute well but can disappear if overprocessed.'},
+  marshmallow:{label:'Marshmallows',category:'mixins',density:.2,water:.17,fat:0,sugar:.72,solid:.83,mixin:true,default:[0,.25,'cup'],note:'Can become chewy when frozen. Small pieces work better.'},
+  fruit_chunks:{label:'Fresh or frozen fruit pieces',category:'mixins',density:.75,water:.85,fat:0,sugar:.1,solid:.15,mixin:true,default:[0,.25,'cup'],note:'Can freeze very hard and icy. Small soft pieces or partially thawed fruit are easier to eat.'},
+  granola:{label:'Granola',category:'mixins',density:.45,water:.04,fat:.15,sugar:.25,solid:.96,mixin:true,default:[0,.25,'cup'],note:'Starts crunchy but softens quickly in the frozen base.'},
+  sauce_swirl:{label:'Caramel / fudge / fruit sauce swirl',category:'mixins',density:1.25,water:.25,fat:.08,sugar:.58,solid:.75,mixin:true,swirl:true,default:[1,0,'tbsp'],note:'Best folded or swirled in manually after processing. Mix-In can fully disperse it.'},
+  nut_swirl:{label:'Nut butter swirl',category:'mixins',density:1.1,water:.02,fat:.5,sugar:.08,solid:.98,mixin:true,swirl:true,default:[1,0,'tbsp'],note:'Warm slightly and fold in manually for visible ribbons. Mix-In tends to blend it into the base.'}
+};
+
+
+const pairingMap = {
+  fairlife_skim:[['blend',10,'balance','Adds protein with more body than whey alone.'],['greek_yogurt',9,'balance','Adds body and creaminess to a very lean milk base.'],['allulose',8,'balance','Softens the freeze without adding fat.'],['pudding',7,'balance','Adds starch and emulsifiers for a smoother spin.'],['vanilla',5,'flavor','Rounds out the dairy flavor.']],
+  fairlife_2:[['blend',10,'balance','Builds a high-protein base with better body.'],['allulose',8,'balance','Helps a lean high-protein base freeze less hard.'],['greek_yogurt',8,'balance','Adds creaminess without needing heavy cream.'],['cocoa',6,'flavor','Makes an easy chocolate protein base.'],['vanilla',5,'flavor','Works with nearly any protein flavor.']],
+  whole_milk:[['heavy_cream',8,'balance','Adds richness for a traditional ice-cream profile.'],['sugar',8,'balance','Improves sweetness and scoopability.'],['vanilla',7,'flavor','Classic neutral flavor pairing.'],['egg_yolk',6,'balance','Supports a custard-style base.'],['cocoa',6,'flavor','Turns the dairy base into chocolate ice cream.']],
+  skim_milk:[['milk_powder',10,'balance','Restores milk solids that skim milk lacks.'],['greek_yogurt',9,'balance','Adds body and creaminess.'],['allulose',8,'balance','Helps prevent an overly hard freeze.'],['pudding',7,'balance','Provides additional structure.']],
+  almond_milk:[['canned_coconut',10,'balance','Adds fat and solids to an otherwise watery plant-milk base.'],['pudding',9,'balance','Adds body to low-solid almond milk.'],['banana',8,'balance','Adds natural body and sweetness.'],['allulose',8,'balance','Improves softness without dairy.'],['plant_protein',6,'balance','Keeps the formula dairy-free while adding solids.']],
+  oat_milk:[['coffee',8,'flavor','Oat milk naturally complements coffee flavors.'],['cinnamon',7,'flavor','Creates an oatmeal-cookie style profile.'],['maple',7,'flavor','Adds a warm sweetness that fits oat milk.'],['vanilla',6,'flavor','Smooths the cereal-like oat flavor.'],['pudding',6,'balance','Adds more body when using a lean oat milk.']],
+  soy_milk:[['cocoa',7,'flavor','Chocolate helps mask stronger soy notes.'],['banana',7,'balance','Adds body and natural sweetness.'],['allulose',7,'balance','Improves the frozen texture.'],['plant_protein',6,'balance','Builds a dairy-free high-protein base.']],
+  canned_coconut:[['mango',10,'flavor','Classic tropical pairing with strong body.'],['pineapple',9,'flavor','Creates a piña-colada style flavor.'],['cocoa',7,'flavor','Makes a rich dairy-free chocolate base.'],['allulose',6,'balance','Balances richness and improves scoopability.']],
+  coffee:[['cocoa',10,'flavor','Builds a mocha profile.'],['oat_milk',8,'flavor','Adds a naturally compatible creamy base.'],['vanilla',8,'flavor','Rounds off coffee bitterness.'],['half_half',7,'balance','Adds body to a mostly watery coffee base.'],['sauce_swirl',6,'mixin','Caramel or fudge works well after the first spin.']],
+  tea:[['honey',8,'flavor','A natural sweetener pairing for tea flavors.'],['peaches',8,'flavor','Creates a peaches-and-tea profile.'],['vanilla',6,'flavor','Softens tannic or herbal notes.'],['greek_yogurt',6,'balance','Adds creamy body to a watery tea base.']],
+  juice:[['mango',8,'flavor','Adds fruit solids and tropical flavor.'],['strawberries',8,'flavor','Adds whole-fruit body to a juice base.'],['allulose',7,'balance','Improves softness without making the drink syrupy.'],['banana',7,'balance','Adds body to a high-water fruit base.']],
+  coconut_water:[['pineapple',9,'flavor','Natural tropical match.'],['mango',9,'flavor','Adds needed fruit solids and sweetness.'],['canned_coconut',8,'balance','Adds body and fat to the watery base.'],['allulose',7,'balance','Helps keep the result softer.']],
+
+  banana:[['pb_powder',10,'flavor','Classic banana and peanut flavor with extra solids.'],['cocoa',9,'flavor','Creates a chocolate-banana profile.'],['strawberries',8,'flavor','Creates a strawberry-banana base.'],['cinnamon',7,'flavor','Adds a banana-bread direction.'],['greek_yogurt',7,'balance','Keeps banana from becoming overly dense or one-note.']],
+  strawberries:[['greek_yogurt',9,'balance','Adds creamy body to a high-water berry.'],['banana',8,'balance','Adds sweetness and natural thickness.'],['vanilla',8,'flavor','Classic strawberries-and-cream pairing.'],['honey',7,'flavor','Adds compatible sweetness.'],['cream_cheese',6,'flavor','Creates a strawberry-cheesecake profile.']],
+  blueberries:[['greek_yogurt',9,'balance','Adds creamy body and tang.'],['vanilla',8,'flavor','Softens the sharper berry notes.'],['honey',7,'flavor','Pairs naturally with blueberries and yogurt.'],['flavor_extract',6,'flavor','Lemon extract can brighten blueberry flavor.']],
+  raspberries:[['cocoa',8,'flavor','Chocolate and raspberry are strongly compatible.'],['greek_yogurt',8,'balance','Adds body and softens acidity.'],['vanilla',7,'flavor','Rounds the tart berry flavor.'],['jam',7,'balance','Boosts fruit solids and sweetness.']],
+  mango:[['pineapple',10,'flavor','Builds a stronger tropical fruit profile.'],['canned_coconut',10,'balance','Adds tropical creaminess and structure.'],['allulose',8,'balance','Improves scoopability without covering the fruit.'],['flavor_extract',6,'flavor','Lime or coconut extract can sharpen the tropical profile.']],
+  pineapple:[['canned_coconut',10,'balance','Classic tropical cream pairing.'],['mango',9,'flavor','Adds body and rounds pineapple acidity.'],['banana',7,'balance','Thickens a watery pineapple base.'],['sauce_swirl',5,'mixin','A fruit sauce can intensify the finished flavor.']],
+  peaches:[['vanilla',8,'flavor','Classic peaches-and-cream direction.'],['greek_yogurt',8,'balance','Adds body and tang.'],['cinnamon',6,'flavor','Creates a peach-cobbler profile.'],['brownie',4,'mixin','Cake pieces work better than hard mix-ins for a cobbler direction.']],
+  cherries:[['cocoa',9,'flavor','Creates a chocolate-cherry profile.'],['vanilla',8,'flavor','Rounds the fruit and makes it creamier.'],['flavor_extract',7,'flavor','Almond extract strongly complements cherry.'],['chocolate_chips',6,'mixin','Adds a Black Forest-style finish.']],
+  applesauce:[['cinnamon',10,'flavor','Creates an apple-pie profile.'],['maple',8,'flavor','Adds warm sweetness.'],['vanilla',7,'flavor','Rounds the cooked-apple flavor.'],['greek_yogurt',7,'balance','Adds protein and body.']],
+  pumpkin:[['cinnamon',10,'flavor','Essential pumpkin-spice pairing.'],['maple',9,'flavor','Adds warm sweetness that fits pumpkin.'],['cream_cheese',8,'flavor','Creates a pumpkin-cheesecake profile.'],['vanilla',7,'flavor','Rounds spice and squash notes.']],
+  avocado:[['cocoa',9,'flavor','Chocolate masks avocado flavor while using its creamy texture.'],['canned_coconut',8,'balance','Keeps the formula dairy-free and rich.'],['allulose',7,'balance','Adds softness without more fat.'],['vanilla',6,'flavor','Rounds the base.']],
+  dates:[['cocoa',9,'flavor','Creates a chocolate-caramel direction.'],['nut_butter',9,'flavor','Pairs naturally with dates and adds richness.'],['vanilla',7,'flavor','Softens the dried-fruit flavor.'],['salt',6,'flavor','A small amount sharpens the caramel-like notes.']],
+
+  whey:[['greek_yogurt',10,'balance','Whey alone can spin dry; yogurt adds body.'],['pudding',9,'balance','Adds structure and reduces chalkiness.'],['allulose',8,'balance','Improves softness in a lean protein base.'],['banana',7,'balance','Adds natural body and sweetness.']],
+  blend:[['fairlife_2',9,'balance','A reliable high-protein liquid base.'],['allulose',8,'balance','Helps a protein-heavy base stay scoopable.'],['vanilla',7,'flavor','Works with most protein flavors.'],['cocoa',7,'flavor','Adds chocolate flavor and dry solids.']],
+  casein:[['fairlife_2',9,'balance','Casein thickens strongly and benefits from enough liquid.'],['allulose',8,'balance','Helps prevent an overly dense hard freeze.'],['coffee',6,'flavor','Coffee cuts through casein-heavy richness.'],['vanilla',6,'flavor','Keeps the base simple without adding more thickeners.']],
+  plant_protein:[['banana',10,'balance','Improves body and masks earthy plant-protein notes.'],['canned_coconut',9,'balance','Adds fat and creaminess.'],['pudding',8,'balance','Adds structure when the powder is gritty.'],['cocoa',8,'flavor','Chocolate often masks plant-protein flavor.']],
+  collagen:[['blend',9,'balance','Adds the body that collagen alone does not provide.'],['greek_yogurt',8,'balance','Adds protein, dairy solids, and thickness.'],['cocoa',6,'flavor','Masks collagen flavor in chocolate recipes.']],
+  pb_powder:[['banana',10,'flavor','Classic peanut-banana pairing.'],['cocoa',9,'flavor','Creates chocolate peanut butter.'],['jam',8,'flavor','Creates a PB&J direction.'],['chocolate_chips',5,'mixin','Adds texture after the first spin.']],
+  cocoa:[['vanilla',9,'flavor','Deepens and rounds chocolate flavor.'],['salt',8,'flavor','A small amount makes chocolate taste fuller.'],['coffee',8,'flavor','Creates mocha and intensifies cocoa.'],['nut_butter',8,'flavor','Classic chocolate-nut pairing.'],['cherries',7,'flavor','Creates chocolate-cherry.']],
+
+  greek_yogurt:[['strawberries',9,'flavor','Classic berry-yogurt pairing.'],['blueberries',9,'flavor','Adds fruit sweetness and color.'],['honey',8,'flavor','Balances yogurt tang.'],['vanilla',8,'flavor','Creates a neutral frozen-yogurt base.'],['granola',5,'mixin','Adds crunch after the first spin.']],
+  cottage_cheese:[['vanilla',8,'flavor','Helps smooth the savory dairy note.'],['strawberries',7,'flavor','Adds fruit and acidity.'],['allulose',7,'balance','Improves sweetness and softness.'],['pudding',5,'balance','Can help smooth the texture, but use moderately.']],
+  pudding:[['fairlife_2',8,'balance','Provides enough liquid and protein for the starch.'],['vanilla',7,'flavor','Works with most pudding flavors.'],['cocoa',7,'flavor','Builds a chocolate pudding base.'],['cream_cheese',5,'flavor','Creates cheesecake-style body; avoid adding gum too.']],
+  guar:[['allulose',7,'balance','Combines a small stabilizer dose with freezing-point support.'],['vanilla',5,'flavor','Neutral flavor choice while the gum handles texture.']],
+  xanthan:[['allulose',7,'balance','Combines a small stabilizer dose with freezing-point support.'],['vanilla',5,'flavor','Neutral flavor choice while the gum handles texture.']],
+  inulin:[['greek_yogurt',7,'balance','Adds fiber and complements a cultured dairy base.'],['cocoa',6,'flavor','Chocolate can mask chicory notes.']],
+
+  heavy_cream:[['whole_milk',9,'balance','Dilutes the cream to a more balanced frozen base.'],['sugar',8,'balance','Improves scoopability and sweetness.'],['vanilla',8,'flavor','Classic ice-cream pairing.'],['cocoa',7,'flavor','Creates a rich chocolate base.']],
+  cream_cheese:[['strawberries',9,'flavor','Creates strawberry cheesecake.'],['pumpkin',9,'flavor','Creates pumpkin cheesecake.'],['vanilla',8,'flavor','Builds a neutral cheesecake base.'],['cookies',6,'mixin','Adds crust-like texture after spinning.']],
+  nut_butter:[['banana',10,'flavor','Classic flavor pairing.'],['cocoa',9,'flavor','Creates chocolate nut butter.'],['jam',8,'flavor','Creates a PB&J profile.'],['salt',6,'flavor','Sharpens roasted-nut flavor.']],
+  coconut_cream:[['mango',9,'flavor','Tropical and creamy.'],['pineapple',9,'flavor','Piña-colada direction.'],['cocoa',7,'flavor','Rich dairy-free chocolate.']],
+  egg_yolk:[['whole_milk',9,'balance','Forms the liquid base for a custard profile.'],['heavy_cream',8,'balance','Adds richness to cooked custard.'],['vanilla',7,'flavor','Classic custard flavor.']],
+
+  sugar:[['vanilla',6,'flavor','Classic neutral sweet base.'],['whole_milk',6,'balance','Balances dairy solids and softness.'],['fruit_chunks',4,'mixin','Sweet fruit pieces can be added after spinning.']],
+  allulose:[['fairlife_2',8,'balance','A strong high-protein, lower-sugar pairing.'],['mango',6,'balance','Keeps fruit flavor clear while softening the freeze.'],['cocoa',6,'flavor','Works well in chocolate recipes.']],
+  honey:[['greek_yogurt',9,'flavor','Natural pairing with cultured dairy.'],['blueberries',8,'flavor','Classic berry-honey flavor.'],['tea',8,'flavor','Natural tea sweetener pairing.']],
+  maple:[['pumpkin',10,'flavor','Classic warm fall flavor.'],['cinnamon',9,'flavor','Creates maple-spice.'],['coffee',7,'flavor','Adds a café-style flavor.'],['nuts',5,'mixin','Maple and nuts work well after spinning.']],
+
+  vanilla:[['strawberries',7,'flavor','Creates strawberries and cream.'],['cocoa',7,'flavor','Rounds chocolate flavor.'],['coffee',7,'flavor','Creates vanilla coffee.'],['cookies',5,'mixin','Classic cookies-and-cream finish.']],
+  instant_coffee:[['cocoa',9,'flavor','Creates mocha and deepens chocolate.'],['vanilla',7,'flavor','Rounds espresso bitterness.'],['sauce_swirl',5,'mixin','Caramel works well after spinning.']],
+  cinnamon:[['pumpkin',10,'flavor','Classic pumpkin-spice pairing.'],['applesauce',9,'flavor','Creates apple pie.'],['banana',8,'flavor','Creates banana bread.'],['maple',8,'flavor','Warm sweet spice pairing.']],
+  salt:[['cocoa',8,'flavor','Strengthens chocolate flavor.'],['nut_butter',7,'flavor','Sharpens roasted nut notes.'],['sauce_swirl',5,'mixin','Salted caramel direction.']],
+
+  cookies:[['vanilla',9,'flavor','Classic cookies-and-cream base.'],['cream_cheese',6,'flavor','Creates a cheesecake-cookie profile.'],['chocolate_milk',6,'flavor','Builds a chocolate cookie base.']],
+  cereal:[['whole_milk',8,'flavor','Creates a cereal-milk base.'],['vanilla',7,'flavor','Rounds toasted cereal notes.'],['marshmallow',5,'mixin','Works for cereal-treat flavors.']],
+  chocolate_chips:[['cocoa',9,'flavor','Keeps the base and mix-in flavor aligned.'],['banana',7,'flavor','Chocolate-chip banana.'],['nut_butter',7,'flavor','Chocolate peanut butter.']],
+  nuts:[['maple',8,'flavor','Classic maple-nut profile.'],['cinnamon',7,'flavor','Warm spiced nut flavor.'],['cocoa',7,'flavor','Chocolate and nuts pair naturally.']],
+  brownie:[['cocoa',9,'flavor','Builds a double-chocolate profile.'],['vanilla',6,'flavor','Balances a rich brownie mix-in.'],['sauce_swirl',5,'mixin','Fudge can be folded in for a richer finish.']],
+  marshmallow:[['cocoa',9,'flavor','Creates hot-chocolate or s’mores flavor.'],['cereal',7,'flavor','Creates cereal-treat flavor.'],['cookies',5,'mixin','Graham-style cookies complete a s’mores direction.']],
+  fruit_chunks:[['greek_yogurt',7,'flavor','Creates a fruit-and-yogurt finish.'],['vanilla',7,'flavor','Works with most fruit pieces.'],['sauce_swirl',5,'mixin','Adds a second layer of fruit flavor.']],
+  granola:[['greek_yogurt',9,'flavor','Classic yogurt-and-granola finish.'],['honey',7,'flavor','Complements toasted granola.'],['blueberries',6,'flavor','Builds a breakfast-style pint.']],
+  sauce_swirl:[['vanilla',8,'flavor','A neutral base keeps the swirl distinct.'],['cream_cheese',7,'flavor','Works for cheesecake-style swirls.'],['salt',6,'flavor','Creates salted caramel or salted fudge.']],
+  nut_swirl:[['banana',9,'flavor','Classic banana and nut butter.'],['cocoa',8,'flavor','Chocolate nut-butter swirl.'],['jam',7,'flavor','PB&J direction.']]
+};
+
+const comboPairings = [
+  {all:['coffee','cocoa'],items:[['vanilla',18,'flavor','Coffee plus cocoa is already a mocha base; vanilla rounds it out.'],['sauce_swirl',12,'mixin','A caramel or fudge swirl completes the mocha profile.']]},
+  {all:['banana','pb_powder'],items:[['cocoa',18,'flavor','Banana and powdered peanut butter pair naturally with chocolate.'],['chocolate_chips',11,'mixin','Adds a chocolate-peanut crunch after spinning.']]},
+  {all:['banana','cocoa'],items:[['nut_butter',16,'flavor','Adds a chocolate-banana-nut direction.'],['chocolate_chips',10,'mixin','Reinforces the chocolate flavor after spinning.']]},
+  {all:['strawberries','banana'],items:[['greek_yogurt',17,'balance','Adds creamy body to the fruit combination.'],['vanilla',13,'flavor','Turns it into a strawberries-and-cream profile.']]},
+  {all:['mango','pineapple'],items:[['canned_coconut',18,'balance','The fruit combination benefits from coconut fat and body.'],['flavor_extract',10,'flavor','Lime or coconut extract sharpens the tropical profile.']]},
+  {all:['pumpkin','cinnamon'],items:[['maple',18,'flavor','Completes a pumpkin-spice profile.'],['cream_cheese',14,'flavor','Turns it into pumpkin cheesecake.']]},
+  {all:['applesauce','cinnamon'],items:[['maple',17,'flavor','Completes an apple-pie profile.'],['granola',9,'mixin','Adds a crisp-style finish after spinning.']]},
+  {all:['cherries','cocoa'],items:[['flavor_extract',15,'flavor','Almond extract reinforces a Black Forest direction.'],['chocolate_chips',11,'mixin','Adds a matching chocolate texture.']]},
+  {all:['greek_yogurt','strawberries'],items:[['honey',15,'flavor','Balances yogurt tang and berry acidity.'],['granola',9,'mixin','Adds a breakfast-style crunch after spinning.']]},
+  {all:['canned_coconut','mango'],items:[['pineapple',16,'flavor','Adds another compatible tropical fruit.'],['allulose',12,'balance','Improves softness without masking mango.']]},
+  {all:['oat_milk','coffee'],items:[['maple',15,'flavor','Creates a maple oat latte profile.'],['vanilla',13,'flavor','Creates a vanilla oat latte profile.']]},
+  {all:['cocoa','nut_butter'],items:[['banana',15,'flavor','Adds natural sweetness and a classic flavor match.'],['salt',10,'flavor','Sharpens both chocolate and nut flavors.']]},
+  {all:['cream_cheese','strawberries'],items:[['cookies',15,'mixin','Adds a crust-like cheesecake mix-in.'],['vanilla',11,'flavor','Completes the cheesecake base.']]},
+  {all:['protein_shake','coffee'],items:[['cocoa',14,'flavor','Creates a mocha protein pint.'],['pudding',12,'balance','Adds body to the liquid-heavy protein base.']]}
+];
+
+let lastSelectedIngredientKey = null;
+
+function selectedIngredientKeys(){return new Set([...document.querySelectorAll('.ingredient-row')].map(r=>r.dataset.key))}
+function addPairCandidate(store,key,score,kind,reason,source='pairing'){
+  if(!ingredients[key])return;
+  const selected=selectedIngredientKeys();
+  if(selected.has(key))return;
+  const existing=store.get(key);
+  if(!existing||score>existing.score)store.set(key,{key,score,kind,reason,source});
+  else if(existing&&score===existing.score&&reason!==existing.reason)existing.reason=`${existing.reason} ${reason}`;
+}
+function getPairingSuggestions(analysis=analyzeFormula()){
+  const selected=selectedIngredientKeys();
+  const store=new Map();
+  const profile=document.getElementById('targetProfile')?.value||'balanced';
+  const style=document.getElementById('builderRecipeStyle')?.value||'high-protein';
+
+  analysis.suggestions.forEach(([key,text],index)=>addPairCandidate(store,key,120-index*2,'fix',text.replace(/^Add\s+/i,''),'formula'));
+
+  selected.forEach(key=>{
+    (pairingMap[key]||[]).forEach(([candidate,score,kind,reason])=>{
+      const emphasis=key===lastSelectedIngredientKey?4:0;
+      addPairCandidate(store,candidate,score+emphasis,kind,reason,key);
+    });
+  });
+
+  comboPairings.forEach(rule=>{
+    if(rule.all.every(key=>selected.has(key)))rule.items.forEach(([candidate,score,kind,reason])=>addPairCandidate(store,candidate,score,kind,reason,'combination'));
+  });
+
+  const rows=analysis.rows;
+  const hasCategory=cat=>rows.some(r=>r.item.category===cat&&!r.item.mixin);
+  const hasStrongBody=rows.some(r=>['greek_yogurt','cottage_cheese','pudding','guar','xanthan','banana','cream_cheese','milk_powder','canned_coconut'].includes(r.key));
+  const hasSweetener=hasCategory('sweeteners')||rows.some(r=>['jam','dates','canned_fruit'].includes(r.key));
+  const hasFlavor=hasCategory('flavors')||rows.some(r=>['cocoa','pb_powder'].includes(r.key));
+
+  if(rows.length&&hasCategory('liquids')&&!hasStrongBody){
+    addPairCandidate(store,'greek_yogurt',22,'balance','Adds body and dairy solids to the selected liquids.','balance');
+    addPairCandidate(store,'pudding',20,'balance','Adds structure when the base is mostly liquid.','balance');
+    addPairCandidate(store,'milk_powder',18,'balance','Raises milk solids without adding much liquid.','balance');
+  }
+  if(analysis.totals.fruit>0&&!hasSweetener){
+    addPairCandidate(store,'allulose',20,'balance','Fruit bases often need additional freezing-point support.','balance');
+    addPairCandidate(store,'honey',14,'flavor','Adds sweetness that pairs naturally with many fruits.','balance');
+  }
+  if(analysis.totals.proteinPowder>0&&!hasStrongBody){
+    addPairCandidate(store,'greek_yogurt',24,'balance','Protein powder usually benefits from a separate source of body.','balance');
+    addPairCandidate(store,'pudding',22,'balance','Helps reduce a dry or chalky protein texture.','balance');
+  }
+  if(selected.has('cocoa')){
+    addPairCandidate(store,'vanilla',16,'flavor','Rounds cocoa bitterness.','balance');
+    addPairCandidate(store,'salt',15,'flavor','A small amount intensifies chocolate flavor.','balance');
+  }
+  if(rows.length>=3&&!rows.some(r=>r.item.mixin)&&hasFlavor){
+    if(selected.has('cocoa')||selected.has('chocolate_milk'))addPairCandidate(store,'chocolate_chips',7,'mixin','Adds matching texture after the first spin.','finish');
+    if(selected.has('vanilla'))addPairCandidate(store,'cookies',6,'mixin','Adds a classic cookies-and-cream finish.','finish');
+  }
+
+  if(!rows.length){
+    const starters=style==='sorbet'?[['mango',20,'balance','Start with a fruit that supplies both flavor and solids.'],['juice',14,'balance','Use as part of the liquid base, not the only structure.'],['allulose',12,'balance','Plan for freezing-point support.']]
+      :style==='regular'?[['whole_milk',20,'balance','A forgiving traditional dairy base.'],['heavy_cream',14,'balance','Adds richness when balanced with milk.'],['sugar',14,'balance','Provides sweetness and scoopability.']]
+      :[['fairlife_2',20,'balance','A useful high-protein liquid base.'],['blend',16,'balance','A whey-casein blend generally gives more body than whey alone.'],['allulose',14,'balance','Helps a lean base freeze less hard.']];
+    starters.forEach(([key,score,kind,reason])=>addPairCandidate(store,key,score,kind,reason,'starter'));
+  }
+
+  const strongThickeners=new Set(['pudding','guar','xanthan','casein']);
+  const alreadyStrong=[...selected].filter(k=>strongThickeners.has(k)).length;
+  let list=[...store.values()].filter(s=>{
+    const item=ingredients[s.key];
+    if(profile==='dairy-free'&&item.dairy)return false;
+    if(alreadyStrong>=1&&['guar','xanthan'].includes(s.key)&&s.source!=='formula')return false;
+    if(selected.has('casein')&&s.key==='pudding'&&s.source!=='formula')return false;
+    return true;
+  });
+
+  list.forEach(s=>{
+    const item=ingredients[s.key];
+    if(profile==='low-calorie'&&['heavy_cream','sugar','nut_butter','coconut_cream'].includes(s.key))s.score-=7;
+    if(profile==='high-protein'&&['blend','greek_yogurt','fairlife_2','milk_powder'].includes(s.key))s.score+=4;
+    if(item.mixin&&rows.length<2)s.score-=10;
+  });
+  list.sort((a,b)=>b.score-a.score||ingredients[a.key].label.localeCompare(ingredients[b.key].label));
+
+  const picked=[];const categoryCounts={};
+  for(const item of list){
+    const cat=ingredients[item.key].category;
+    const limit=item.kind==='fix'?3:2;
+    if((categoryCounts[cat]||0)>=limit)continue;
+    picked.push(item);categoryCounts[cat]=(categoryCounts[cat]||0)+1;
+    if(picked.length===6)break;
+  }
+  return picked;
+}
+function pairingKindLabel(kind){return kind==='fix'?'Texture fix':kind==='balance'?'Formula balance':kind==='mixin'?'Mix-in idea':'Flavor pairing'}
+function renderPairingSuggestions(pairings=getPairingSuggestions()){
+  const el=document.getElementById('pairingSuggestions');
+  if(!el)return;
+  if(!pairings.length){el.innerHTML='<div class="pairing-empty">No additional pairing is necessary yet. Adjust an amount or choose another ingredient and the recommendations will recalculate.</div>';return}
+  el.innerHTML=pairings.map(p=>`<button type="button" class="pairing-card" data-pair-add="${p.key}"><span class="pair-kind ${p.kind}">${pairingKindLabel(p.kind)}</span><strong>${escapeHtml(ingredients[p.key].label)}</strong><small>${escapeHtml(p.reason)}</small><span class="pair-add">+ Add to formula</span></button>`).join('');
+}
+
+const fractionValues = [0,.125,.25,.333,.5,.667,.75];
+const fractionLabels = {0:'0',.125:'1/8',.25:'1/4',.333:'1/3',.5:'1/2',.667:'2/3',.75:'3/4'};
+const houseUnits = ['tsp','tbsp','cup','scoop','item'];
+const metricUnits = ['g','oz','ml'];
+const mlByUnit = {tsp:4.92892,tbsp:14.7868,cup:236.588};
+
+let currentRoute='home';
+let currentModelKey=localStorage.getItem('pintLogicModel') || 'nc500';
+if(!modelData[currentModelKey]) currentModelKey='nc500';
+let builderStep=1;
+let activeCategory='liquids';
+let activeGuideCategory='all';
+let latestRecipe=null;
+
+function getModel(){return modelData[currentModelKey]}
+function capacityMl(){return getModel().capacityOz*29.5735}
+function batchFactor(){const mode=document.getElementById('builderBatchMode')?.value || 'full';return (mode==='top'||mode==='bottom') ? .5 : 1}
+function targetCapacityMl(){return capacityMl()*batchFactor()}
+function escapeHtml(value=''){return String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;')}
+function optionHtml(values,labeler){return values.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(labeler(v))}</option>`).join('')}
+
+function routeTo(route){
+  currentRoute=route;
+  Object.values(screens).forEach(s=>s.classList.remove('active'));
+  screens[route].classList.add('active');
+  document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.toggle('active',b.dataset.route===route));
+  if(route==='recipes') renderRecipes();
+  if(route==='ingredients') renderGuide();
+  if(route==='quick') renderQuickReference();
+  if(route==='live') startLiveMode();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+document.addEventListener('click',event=>{const button=event.target.closest('[data-route]');if(button)routeTo(button.dataset.route)});
+
+function recommendedProgram(){
+  const model=getModel();
+  const style=document.getElementById('builderRecipeStyle').value;
+  const profile=document.getElementById('targetProfile').value;
+  const output=document.getElementById('outputMode').value;
+  const analysis=analyzeFormula();
+  if(model.softServe && output==='softserve'){
+    if(style==='fruit-whip')return 'Fruit Whip';
+    if(style==='frozen-custard')return 'Frozen Custard';
+    if(style==='frozen-yogurt')return 'Frozen Yogurt';
+    if(profile==='high-protein'&&model.programs.includes('CreamiFit'))return 'CreamiFit';
+    if(profile==='low-calorie')return 'Soft Serve Lite Ice Cream';
+    return 'Soft Serve Ice Cream';
+  }
+  if(profile==='dairy-free'&&model.programs.includes('Dairy-Free'))return 'Dairy-Free';
+  if((profile==='high-protein'||profile==='low-calorie'||analysis.leanRisk)&&model.programs.includes('CreamiFit'))return 'CreamiFit';
+  if((profile==='high-protein'||profile==='low-calorie'||analysis.leanRisk)&&model.programs.includes('Lite Ice Cream'))return 'Lite Ice Cream';
+  return model.programMap[style] || 'Ice Cream';
+}
+
+function applyModel(){
+  const model=getModel();
+  document.getElementById('modelSelect').value=currentModelKey;
+  document.getElementById('modelEyebrow').textContent=`${model.name.toUpperCase()} • ${model.code}`;
+  document.getElementById('modelSummary').textContent=`${model.container} • ${model.zones?'Full, Top, and Bottom processing':'whole-container processing'}`;
+  document.getElementById('pintModel').textContent=model.shortCode;
+  document.getElementById('settingFeatureText').textContent=model.zones?'Program plus Full, Top, or Bottom':'Choose the correct program';
+  document.getElementById('builderModelEyebrow').textContent=`${model.name.toUpperCase()} • ${model.shortCode}`;
+  document.getElementById('builderModelNote').textContent=model.note;
+
+  const styleSelect=document.getElementById('builderRecipeStyle');
+  const previous=styleSelect.value;
+  styleSelect.innerHTML=optionHtml(model.styles,s=>styleLabels[s]);
+  if(model.styles.includes(previous))styleSelect.value=previous;
+
+  const batch=document.getElementById('builderBatchMode');
+  batch.innerHTML=model.zones?'<option value="full">Full 24 oz tub</option><option value="top">Top section only</option><option value="bottom">Bottom section only</option>':'<option value="full">Whole 16 oz pint</option>';
+  document.getElementById('outputModeField').classList.toggle('hidden',!model.softServe);
+
+  const programMode=document.getElementById('programMode')?.value || 'auto';
+  document.getElementById('modelStartOptions').innerHTML=`
+    <label class="field-label">Program planning
+      <select id="programMode"><option value="auto" ${programMode==='auto'?'selected':''}>Recommend automatically from the formula</option><option value="manual" ${programMode==='manual'?'selected':''}>I will choose manually</option></select>
+    </label>
+    <div class="model-option-note"><strong>Programs on this profile</strong><br>${model.programs.join(' • ')}</div>`;
+  document.getElementById('programMode').addEventListener('change',updateFormulaEverywhere);
+
+  populateMachinePlan();
+  populateSettingScreen();
+  renderQuickReference();
+  updateFormulaEverywhere();
+}
+
+document.getElementById('modelSelect').addEventListener('change',event=>{currentModelKey=event.target.value;localStorage.setItem('pintLogicModel',currentModelKey);applyModel()});
+
+function householdToGrams(item,qty,unit){
+  if(unit==='item')return qty*(item.itemGrams||100);
+  if(unit==='scoop')return qty*(item.scoopGrams||30);
+  return qty*mlByUnit[unit]*(item.density||1);
+}
+function metricToGrams(item,qty,unit){
+  if(unit==='oz')return qty*28.3495;
+  if(unit==='ml')return qty*(item.density||1);
+  return qty;
+}
+function gramsToMetric(item,grams,unit){
+  if(unit==='oz')return grams/28.3495;
+  if(unit==='ml')return grams/(item.density||1);
+  return grams;
+}
+function gramsToHousehold(item,grams,unit){
+  if(unit==='item')return grams/(item.itemGrams||100);
+  if(unit==='scoop')return grams/(item.scoopGrams||30);
+  return grams/((item.density||1)*mlByUnit[unit]);
+}
+function splitHouseQty(qty){
+  const whole=Math.floor(qty+0.001);
+  const remainder=qty-whole;
+  let fraction=fractionValues.reduce((best,n)=>Math.abs(n-remainder)<Math.abs(best-remainder)?n:best,0);
+  if(fraction===0 && remainder>.87)return {whole:whole+1,fraction:0};
+  return {whole,fraction};
+}
+function decimals(n){return n>=100?Math.round(n):n>=10?Math.round(n*10)/10:Math.round(n*100)/100}
+
+function fractionOptions(selected){return fractionValues.map(v=>`<option value="${v}" ${Math.abs(v-selected)<.001?'selected':''}>${fractionLabels[v]}</option>`).join('')}
+function unitOptions(units,selected){return units.map(u=>`<option value="${u}" ${u===selected?'selected':''}>${u}</option>`).join('')}
+
+function addIngredient(key,override=null){
+  if(!ingredients[key])return;
+  lastSelectedIngredientKey=key;
+  const existing=document.querySelector(`.ingredient-row[data-key="${key}"]`);
+  if(existing){existing.scrollIntoView({behavior:'smooth',block:'center'});existing.animate([{outline:'2px solid var(--accent)'},{outline:'0 solid transparent'}],{duration:700});return}
+  const item=ingredients[key];
+  const defaultAmount=override || {whole:item.default[0],fraction:item.default[1],unit:item.default[2]};
+  const householdQty=Number(defaultAmount.whole||0)+Number(defaultAmount.fraction||0);
+  const grams=householdToGrams(item,householdQty,defaultAmount.unit);
+  const metricUnit=item.category==='liquids'?'ml':'g';
+  const row=document.createElement('div');
+  row.className='ingredient-row';row.dataset.key=key;row.dataset.source='household';
+  row.innerHTML=`
+    <div class="ingredient-row-head">
+      <div class="ingredient-row-title"><strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.note)}</small><span class="category-tag">${escapeHtml(categories[item.category])}</span></div>
+      <button type="button" class="remove-ingredient" aria-label="Remove ${escapeHtml(item.label)}">×</button>
+    </div>
+    <div class="measurement-groups">
+      <div class="measure-group household-group active-source">
+        <div class="measure-label"><span>Household amount</span><span>cups / spoons</span></div>
+        <div class="house-grid">
+          <input class="house-whole" type="number" min="0" step="1" value="${defaultAmount.whole||0}" inputmode="numeric" aria-label="Whole amount" />
+          <select class="house-fraction" aria-label="Fraction">${fractionOptions(defaultAmount.fraction||0)}</select>
+          <select class="house-unit" aria-label="Household unit">${unitOptions(houseUnits,defaultAmount.unit)}</select>
+        </div>
+      </div>
+      <div class="measure-group metric-group">
+        <div class="measure-label"><span>Weight / metric</span><span>optional</span></div>
+        <div class="metric-grid">
+          <input class="metric-qty" type="number" min="0" step="0.01" value="${decimals(gramsToMetric(item,grams,metricUnit))}" inputmode="decimal" aria-label="Metric amount" />
+          <select class="metric-unit" aria-label="Metric unit">${unitOptions(metricUnits,metricUnit)}</select>
+        </div>
+      </div>
+    </div>
+    <div class="conversion-line"></div>`;
+
+  const householdControls=row.querySelectorAll('.house-whole,.house-fraction,.house-unit');
+  const metricControls=row.querySelectorAll('.metric-qty,.metric-unit');
+  householdControls.forEach(control=>control.addEventListener('input',()=>{row.dataset.source='household';syncMetricFromHouse(row);updateFormulaEverywhere()}));
+  metricControls.forEach(control=>control.addEventListener('input',()=>{row.dataset.source='metric';syncHouseFromMetric(row);updateFormulaEverywhere()}));
+  row.querySelector('.remove-ingredient').addEventListener('click',()=>{row.remove();if(lastSelectedIngredientKey===key)lastSelectedIngredientKey=null;renderIngredientPicker();updateFormulaEverywhere()});
+  document.getElementById('ingredientRows').appendChild(row);
+  updateRowVisibility(row);updateConversionLine(row);renderIngredientPicker();updateFormulaEverywhere();
+}
+
+function rowHouseQty(row){return (Number(row.querySelector('.house-whole').value)||0)+(Number(row.querySelector('.house-fraction').value)||0)}
+function syncMetricFromHouse(row){
+  const item=ingredients[row.dataset.key];
+  const grams=householdToGrams(item,rowHouseQty(row),row.querySelector('.house-unit').value);
+  const unit=row.querySelector('.metric-unit').value;
+  row.querySelector('.metric-qty').value=decimals(gramsToMetric(item,grams,unit));
+  updateConversionLine(row);
+}
+function syncHouseFromMetric(row){
+  const item=ingredients[row.dataset.key];
+  const grams=metricToGrams(item,Number(row.querySelector('.metric-qty').value)||0,row.querySelector('.metric-unit').value);
+  const unit=row.querySelector('.house-unit').value;
+  const split=splitHouseQty(gramsToHousehold(item,grams,unit));
+  row.querySelector('.house-whole').value=split.whole;
+  row.querySelector('.house-fraction').value=String(split.fraction);
+  updateConversionLine(row);
+}
+function canonicalRow(row){
+  const item=ingredients[row.dataset.key];
+  let grams;
+  if(row.dataset.source==='metric')grams=metricToGrams(item,Number(row.querySelector('.metric-qty').value)||0,row.querySelector('.metric-unit').value);
+  else grams=householdToGrams(item,rowHouseQty(row),row.querySelector('.house-unit').value);
+  return {key:row.dataset.key,item,grams:Math.max(0,grams),houseQty:rowHouseQty(row),houseUnit:row.querySelector('.house-unit').value,metricQty:Number(row.querySelector('.metric-qty').value)||0,metricUnit:row.querySelector('.metric-unit').value,source:row.dataset.source};
+}
+function updateConversionLine(row){
+  const data=canonicalRow(row);const ml=data.grams/(data.item.density||1);
+  row.querySelector('.conversion-line').textContent=`Formula check uses approximately ${decimals(data.grams)} g / ${decimals(ml)} ml. Last edited: ${data.source==='metric'?'weight or metric':'household amount'}.`;
+  row.querySelector('.household-group').classList.toggle('active-source',data.source==='household');
+  row.querySelector('.metric-group').classList.toggle('active-source',data.source==='metric');
+}
+function getRows(){return [...document.querySelectorAll('.ingredient-row')].map(canonicalRow).filter(r=>r.grams>0)}
+
+function updateRowVisibility(row){
+  row.querySelector('.household-group').classList.toggle('hidden',!document.getElementById('showHousehold').checked);
+  row.querySelector('.metric-group').classList.toggle('hidden',!document.getElementById('showWeight').checked);
+}
+function updateAllRowVisibility(){document.querySelectorAll('.ingredient-row').forEach(updateRowVisibility)}
+function enforceMeasurementChoice(changed){
+  const house=document.getElementById('showHousehold'),weight=document.getElementById('showWeight');
+  if(!house.checked&&!weight.checked){changed.checked=true}
+  updateAllRowVisibility();
+}
+document.getElementById('showHousehold').addEventListener('change',event=>enforceMeasurementChoice(event.target));
+document.getElementById('showWeight').addEventListener('change',event=>enforceMeasurementChoice(event.target));
+
+function renderCategoryTabs(){
+  document.getElementById('categoryTabs').innerHTML=Object.entries(categories).map(([key,label])=>`<button type="button" data-category="${key}" class="${key===activeCategory?'active':''}">${escapeHtml(label)}</button>`).join('');
+}
+function renderIngredientPicker(pairings=null){
+  renderCategoryTabs();
+  const selected=new Set([...document.querySelectorAll('.ingredient-row')].map(r=>r.dataset.key));
+  const ranked=pairings||getPairingSuggestions();
+  const rankMap=new Map(ranked.map((p,index)=>[p.key,{...p,index}]));
+  const entries=Object.entries(ingredients).filter(([,item])=>item.category===activeCategory).sort(([a],[b])=>{
+    const ar=rankMap.has(a)?rankMap.get(a).index:999;
+    const br=rankMap.has(b)?rankMap.get(b).index:999;
+    return ar-br||ingredients[a].label.localeCompare(ingredients[b].label);
+  });
+  document.getElementById('ingredientPicker').innerHTML=entries.map(([key,item])=>{
+    const rec=rankMap.get(key);
+    return `<button type="button" class="picker-item ${selected.has(key)?'selected':''} ${rec&&!selected.has(key)?'recommended':''}" data-pick="${key}">
+      <span class="picker-check">${selected.has(key)?'✓':'+'}</span><strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.note)}</small>${rec&&!selected.has(key)?`<span class="picker-recommend">${pairingKindLabel(rec.kind)}</span>`:''}
+    </button>`;
+  }).join('');
+  const count=selected.size;document.getElementById('selectedIngredientCount').textContent=`${count} ingredient${count===1?'':'s'} selected`;
+  if(!count)document.getElementById('ingredientRows').innerHTML='<div class="empty-formula">Choose one or more ingredients above. You can mix multiple milks, liquids, fruits, powders, and texture ingredients.</div>';
+  else document.querySelector('.empty-formula')?.remove();
+}
+document.getElementById('categoryTabs').addEventListener('click',event=>{const button=event.target.closest('[data-category]');if(!button)return;activeCategory=button.dataset.category;renderIngredientPicker()});
+document.getElementById('ingredientPicker').addEventListener('click',event=>{const button=event.target.closest('[data-pick]');if(!button)return;const existing=document.querySelector(`.ingredient-row[data-key="${button.dataset.pick}"]`);if(existing){existing.remove();if(lastSelectedIngredientKey===button.dataset.pick)lastSelectedIngredientKey=null;renderIngredientPicker();updateFormulaEverywhere()}else addIngredient(button.dataset.pick)});
+document.getElementById('clearIngredientsBtn').addEventListener('click',()=>{lastSelectedIngredientKey=null;document.getElementById('ingredientRows').innerHTML='';renderIngredientPicker();updateFormulaEverywhere()});
+
+function analyzeFormula(){
+  const rows=getRows();const scale=batchFactor()*(getModel().capacityOz/16);const cap=targetCapacityMl();
+  const totals={grams:0,ml:0,water:0,fat:0,sugar:0,solid:0,support:0,freeze:0,protein:0,proteinPowder:0,liquid:0,thinLiquid:0,fruit:0,gum:0,pudding:0,alcohol:0,dairy:0,mixin:0,mixinCount:0,baseCount:0};
+  rows.forEach(r=>{const i=r.item,g=r.grams,ml=g/(i.density||1);totals.grams+=g;totals.water+=g*(i.water||0);totals.fat+=g*(i.fat||0);totals.sugar+=g*(i.sugar||0);totals.solid+=g*(i.solid||0);totals.support+=g*(i.support||0);totals.freeze+=g*(i.freeze||0);totals.protein+=g*(i.protein||0);if(i.proteinPowder)totals.proteinPowder+=g;if(i.category==='liquids')totals.liquid+=g;if(i.thin)totals.thinLiquid+=g;if(i.fruit)totals.fruit+=g;if(i.gum)totals.gum+=g;if(i.pudding)totals.pudding+=g;if(i.alcohol)totals.alcohol+=ml*(i.alcohol||0);if(i.dairy)totals.dairy+=g;if(i.mixin){totals.mixin+=g;totals.mixinCount++}else{totals.ml+=ml;totals.baseCount++}});
+  const waterPct=totals.grams?totals.water/totals.grams*100:0;
+  const fillPct=cap?totals.ml/cap*100:0;
+  const leanRisk=waterPct>84&&totals.fat<7*scale&&totals.freeze<15*scale;
+  const onlyLiquidProtein=rows.filter(r=>!r.item.mixin).length>0&&rows.filter(r=>!['liquids','protein'].includes(r.item.category)&&!r.item.mixin).length===0&&totals.proteinPowder>0;
+  const warnings=[];const suggestions=[];
+
+  if(!rows.length)warnings.push({severity:'danger',title:'No ingredients selected',text:'Start with at least one liquid or fruit base, then add the ingredients that provide sweetness, body, protein, or fat.'});
+  if(rows.length&&!totals.liquid&&!totals.fruit)warnings.push({severity:'danger',title:'No real liquid or fruit base',text:'Dry powders and thickeners cannot form a usable frozen base by themselves.'});
+  if(onlyLiquidProtein&&totals.support<8*scale&&totals.freeze<12*scale&&totals.fat<6*scale){
+    warnings.push({severity:'danger',title:'Milk plus protein powder alone is a high-risk formula',text:'This is likely to spin dry, powdery, chalky, or icy. Add at least one meaningful source of body or freezing-point support before freezing it.'});
+    suggestions.push(['greek_yogurt','Add 1/4 cup Greek yogurt'],['pudding','Add 1 tbsp pudding mix'],['guar',`Add ${getModel().capacityOz===24?'1/4':'1/8'} tsp guar gum`],['allulose','Add 1 tbsp allulose']);
+  }
+  if(totals.thinLiquid>totals.grams*.45&&totals.support<7*scale&&totals.freeze<15*scale){
+    warnings.push({severity:'danger',title:'The base is mostly thin liquid with little structure',text:'Nut milk, water, coffee, tea, or skim milk needs help from fruit solids, dairy solids, sugar/allulose, fat, yogurt, pudding mix, fiber, or a carefully measured stabilizer.'});
+    suggestions.push(['milk_powder','Add 2 tbsp milk powder'],['cream_cheese','Add 1 tbsp cream cheese'],['banana','Add 1/2 banana']);
+  }
+  if(totals.proteinPowder>45*scale&&totals.support<12*scale)warnings.push({severity:'warning',title:'Protein powder is high relative to the body ingredients',text:'Large amounts can become chalky or dense. Reduce the powder or add a compatible body ingredient.'});
+  if(waterPct>88&&totals.solid<45*scale)warnings.push({severity:'warning',title:'High-water, low-solid formula',text:'Expect a harder, icier freeze unless more solids or freezing-point support are added.'});
+  if(totals.fruit>totals.grams*.45&&totals.freeze<18*scale&&totals.support<5*scale)warnings.push({severity:'warning',title:'Fruit-heavy but low in sweetness or body',text:'High-water fruit can freeze icy. Consider sugar, allulose, banana, jam, yogurt, or another appropriate support.'});
+  if(fillPct>100)warnings.push({severity:'danger',title:'Estimated overfill',text:`The pre-freeze base is about ${Math.round(fillPct)}% of the selected capacity. Reduce it and stay below the MAX FILL line.`});
+  else if(fillPct>88)warnings.push({severity:'warning',title:'Very little room remains',text:'Leave room for expansion and any mix-ins added after processing.'});
+  else if(fillPct>0&&fillPct<35)warnings.push({severity:'warning',title:'Very small batch for the selected container',text:'A very shallow frozen layer may process less consistently.'});
+  if(totals.gum>1.1*scale)warnings.push({severity:totals.gum>1.6*scale?'danger':'warning',title:'Too much gum may make it slimy or elastic',text:`Estimated guar/xanthan amount is ${decimals(totals.gum)} g. Use a precise small measurement.`});
+  if(totals.pudding>16*scale)warnings.push({severity:'warning',title:'Pudding mix may be excessive',text:'Large amounts can become pasty, especially when combined with casein or gum.'});
+  if(totals.gum>0&&totals.pudding>0&&totals.proteinPowder>25*scale)warnings.push({severity:'warning',title:'Several strong thickeners are stacked',text:'Protein powder, pudding mix, and gum can compound. The result may be unusually dense or gummy.'});
+  if(totals.alcohol>28*scale)warnings.push({severity:'danger',title:'Alcohol may prevent a firm freeze',text:'Reduce the alcohol substantially before freezing.'});
+  else if(totals.alcohol>14*scale)warnings.push({severity:'warning',title:'Alcohol will soften the base',text:'It may become too soft or soupy after processing.'});
+  if(totals.mixin>0){
+    const room=Math.max(0,cap-totals.ml);const mixMl=totals.mixin/.75;
+    if(mixMl>room)warnings.push({severity:'warning',title:'Not enough room for the selected mix-ins',text:'Reduce the base or the mix-in amount. Add mix-ins after the first spin, not before freezing.'});
+    const swirls=rows.filter(r=>r.item.swirl);
+    if(swirls.length)warnings.push({severity:'info',title:'Swirls should usually be folded in manually',text:'Sauces and nut butters lose their ribbon effect when fully processed on Mix-In.'});
+  }
+  if(document.getElementById('targetProfile').value==='dairy-free'&&totals.dairy>1)warnings.push({severity:'warning',title:'Dairy-free goal contains dairy ingredients',text:'Replace the dairy ingredients or change the selected goal.'});
+  if(Number(document.getElementById('freezeHours').value)<12)warnings.push({severity:'warning',title:'Freeze time may be too short',text:'The base should be fully solid before processing.'});
+  if(!document.getElementById('builderTopFlat').checked)warnings.push({severity:'danger',title:'Do not process a raised frozen hump',text:'Flatten the frozen surface before installing the container.'});
+  if(rows.length&&!warnings.some(w=>['danger','warning'].includes(w.severity)))warnings.push({severity:'info',title:'No major conflict detected',text:'The formula looks reasonably supported, but ingredient brands and freezer temperature can still change the result.'});
+
+  const risk=warnings.some(w=>w.severity==='danger')?'danger':warnings.some(w=>w.severity==='warning')?'warning':'safe';
+  const supportLevel=totals.support>20*scale?'High':totals.support>7*scale?'Moderate':'Low';
+  return {rows,totals,cap,fillPct,waterPct,risk,warnings,suggestions:[...new Map(suggestions.map(s=>[s[0],s])).values()],leanRisk,supportLevel};
+}
+
+function coachHtml(a){
+  const main=a.warnings.find(w=>w.severity==='danger')||a.warnings.find(w=>w.severity==='warning')||a.warnings[0]||{title:'Start adding ingredients',text:'The formula check updates as you build.'};
+  const label=a.risk==='danger'?'Likely texture problem':a.risk==='warning'?'Needs improvement':'Reasonable starting point';
+  return `<div class="coach-head"><div><h3>${escapeHtml(main.title)}</h3><p class="coach-message">${escapeHtml(main.text)}</p></div><span class="coach-status">${label}</span></div>${a.suggestions.length?`<div class="coach-fixes">${a.suggestions.slice(0,5).map(([key,text])=>`<button type="button" data-fix-add="${key}">${escapeHtml(text)}</button>`).join('')}</div>`:''}`;
+}
+function watchHtml(a){
+  return `<div class="watch-header"><h3>Formula Check</h3><span class="risk-pill ${a.risk}">${a.risk==='danger'?'High risk':a.risk==='warning'?'Needs attention':'Looks reasonable'}</span></div>
+  <div class="formula-metrics"><div class="formula-metric"><span>Estimated base fill</span><strong>${Math.round(a.totals.ml)} / ${Math.round(a.cap)} ml</strong></div><div class="formula-metric"><span>Formula mass</span><strong>${Math.round(a.totals.grams)} g</strong></div><div class="formula-metric"><span>Texture support</span><strong>${a.supportLevel}</strong></div><div class="formula-metric"><span>Water estimate</span><strong>${Math.round(a.waterPct||0)}%</strong></div></div>
+  <div class="warning-list">${a.warnings.map(w=>`<div class="formula-warning ${w.severity}"><strong>${escapeHtml(w.title)}</strong>${escapeHtml(w.text)}</div>`).join('')}</div>`;
+}
+function updateFormulaEverywhere(){
+  const a=analyzeFormula();
+  const coach=document.getElementById('formulaCoachTop');coach.className=`formula-coach ${a.risk}`;coach.innerHTML=coachHtml(a);
+  ['formulaWatchStep2','formulaWatchStep3','formulaWatchStep4','formulaWatchStep5'].forEach(id=>{const el=document.getElementById(id);el.className=`formula-watch watch-${a.risk}`;el.innerHTML=watchHtml(a)});
+  document.querySelectorAll('.ingredient-row').forEach(updateConversionLine);
+  const pairings=getPairingSuggestions(a);renderIngredientPicker(pairings);renderPairingSuggestions(pairings);renderMixInSummary();renderProgramRecommendation();
+  if(builderStep===5)renderBuilderReview(a);
+}
+document.getElementById('formulaCoachTop').addEventListener('click',event=>{const button=event.target.closest('[data-fix-add]');if(!button)return;const key=button.dataset.fixAdd;let override=null;if(key==='guar')override={whole:0,fraction:getModel().capacityOz===24?.25:.125,unit:'tsp'};addIngredient(key,override)});
+document.getElementById('pairingSuggestions').addEventListener('click',event=>{const button=event.target.closest('[data-pair-add]');if(!button)return;const key=button.dataset.pairAdd;let override=null;if(key==='guar')override={whole:0,fraction:getModel().capacityOz===24?.25:.125,unit:'tsp'};addIngredient(key,override)});
+
+function templateRows(){
+  const style=document.getElementById('builderRecipeStyle').value,profile=document.getElementById('targetProfile').value;
+  if(style==='regular')return [['whole_milk'],['heavy_cream'],['sugar'],['vanilla']];
+  if(style==='sorbet')return [['mango'],['juice'],['sugar']];
+  if(style==='gelato')return [['whole_milk'],['evaporated_milk'],['sugar'],['pudding']];
+  if(style==='frozen-yogurt')return [['greek_yogurt'],['whole_milk'],['sugar']];
+  if(style==='smoothie-bowl')return [['mango'],['banana'],['almond_milk']];
+  if(style==='dairy-free'||profile==='dairy-free')return [['oat_milk'],['canned_coconut'],['allulose'],['pudding']];
+  if(style==='fruit-whip')return [['mango'],['allulose']];
+  if(style==='frozen-custard')return [['whole_milk'],['heavy_cream'],['egg_yolk'],['sugar']];
+  if(style==='soft-serve')return [['whole_milk'],['sugar'],['pudding']];
+  return [['fairlife_2'],['blend'],['allulose'],['pudding']];
+}
+function loadTemplate(){lastSelectedIngredientKey=null;document.getElementById('ingredientRows').innerHTML='';templateRows().forEach(([key])=>addIngredient(key));renderIngredientPicker();updateFormulaEverywhere()}
+document.getElementById('loadTemplateBtn').addEventListener('click',loadTemplate);
+
+function renderMixInSummary(){
+  const mixins=getRows().filter(r=>r.item.mixin);
+  const el=document.getElementById('mixInSummary');
+  if(!mixins.length){el.innerHTML='<div class="model-note">No mix-ins selected. Add them from the Mix-ins category when building the formula.</div>';return}
+  el.innerHTML=mixins.map(r=>`<div class="mix-in-card"><strong>${escapeHtml(r.item.label)}</strong><small>${escapeHtml(r.item.note)} Add after the first spin.</small></div>`).join('');
+}
+
+function populateMachinePlan(){
+  const model=getModel();const program=document.getElementById('firstProgramSelect');const prior=program.value;
+  program.innerHTML=optionHtml(model.programs,p=>p);if(model.programs.includes(prior))program.value=prior;else program.value=recommendedProgram();
+  const portion=document.getElementById('builderPortionSelect');
+  portion.innerHTML=model.zones?'<option value="Full">Full</option><option value="Top">Top</option><option value="Bottom">Bottom</option>':'<option value="Whole container">Whole container</option>';
+  document.getElementById('builderPortionField').classList.toggle('hidden',!model.zones);
+  document.getElementById('machineSpecificOptions').innerHTML=`<div class="model-option-note"><strong>${model.name} ${model.shortCode}</strong><br>${model.note}</div>${model.softServe?'<div class="model-option-note">Soft-serve output requires the matching soft-serve program and dispensing setup.</div>':''}`;
+}
+function renderProgramRecommendation(){
+  const recommended=recommendedProgram();const mode=document.getElementById('programMode')?.value||'auto';
+  document.getElementById('programRecommendation').innerHTML=`<strong>${mode==='auto'?`Recommended first program: ${recommended}`:'Manual program selection enabled'}</strong>${mode==='auto'?'The recommendation uses the selected recipe type, nutrition goal, machine, and current formula risk.':'Choose from the programs available on the selected model.'}`;
+  if(mode==='auto'&&getModel().programs.includes(recommended))document.getElementById('firstProgramSelect').value=recommended;
+}
+
+function displayAmount(r){
+  const f=Number(r.houseQty)-Math.floor(Number(r.houseQty));let fraction=fractionValues.reduce((best,n)=>Math.abs(n-f)<Math.abs(best-f)?n:best,0);const whole=Math.floor(r.houseQty+.001);const parts=[];if(whole)parts.push(whole);if(fraction)parts.push(fractionLabels[fraction]);const house=`${parts.join(' ')||0} ${r.houseUnit}`;return `${house} (about ${decimals(r.grams)} g)`;
+}
+function renderBuilderReview(a=analyzeFormula()){
+  const base=a.rows.filter(r=>!r.item.mixin),mixins=a.rows.filter(r=>r.item.mixin);
+  document.getElementById('builderReview').innerHTML=`<div class="review-grid">
+    <div class="review-block"><span>Machine</span><p>${escapeHtml(getModel().name)} ${escapeHtml(getModel().shortCode)} • ${escapeHtml(getModel().container)}</p></div>
+    <div class="review-block"><span>Base formula</span>${base.length?`<ul>${base.map(r=>`<li>${escapeHtml(r.item.label)}: ${escapeHtml(displayAmount(r))}</li>`).join('')}</ul>`:'<p>No base ingredients selected.</p>'}</div>
+    <div class="review-block"><span>Mix-ins after first spin</span>${mixins.length?`<ul>${mixins.map(r=>`<li>${escapeHtml(r.item.label)}: ${escapeHtml(displayAmount(r))}</li>`).join('')}</ul>`:'<p>None selected.</p>'}</div>
+    <div class="review-block"><span>Machine plan</span><p>${escapeHtml(document.getElementById('builderPortionSelect').value)} • ${escapeHtml(document.getElementById('firstProgramSelect').value)} • ${escapeHtml(document.getElementById('respinPlan').selectedOptions[0].text)}</p></div>
+  </div>`;
+}
+
+const builderSteps=[...document.querySelectorAll('.builder-step')];
+function updateBuilderUI(){
+  builderSteps.forEach(s=>s.classList.toggle('active',Number(s.dataset.step)===builderStep));const pct=builderStep*20;
+  document.getElementById('builderProgress').style.width=`${pct}%`;document.getElementById('builderStepLabel').textContent=`Step ${builderStep} of 5`;document.getElementById('builderPercent').textContent=`${pct}%`;
+  document.getElementById('builderBackBtn').disabled=builderStep===1;document.getElementById('builderNextBtn').textContent=builderStep===5?'Create Recipe Plan':'Next';
+  if(builderStep===4)populateMachinePlan();if(builderStep===5)renderBuilderReview();updateFormulaEverywhere();
+}
+document.getElementById('builderNextBtn').addEventListener('click',()=>{if(builderStep<5){builderStep++;updateBuilderUI()}else createRecipe()});
+document.getElementById('builderBackBtn').addEventListener('click',()=>{if(builderStep>1){builderStep--;updateBuilderUI()}});
+
+function createRecipe(){
+  const a=analyzeFormula();const title=document.getElementById('recipeName').value.trim()||styleLabels[document.getElementById('builderRecipeStyle').value];
+  latestRecipe={id:Date.now(),title,modelKey:currentModelKey,modelName:`${getModel().name} ${getModel().shortCode}`,style:document.getElementById('builderRecipeStyle').value,profile:document.getElementById('targetProfile').value,texture:document.getElementById('textureTarget').value,program:document.getElementById('firstProgramSelect').value,portion:document.getElementById('builderPortionSelect').value,risk:a.risk,ingredients:a.rows.map(r=>({key:r.key,name:r.item.label,amount:displayAmount(r),grams:Math.round(r.grams*100)/100,mixin:!!r.item.mixin})),createdAt:new Date().toISOString()};
+  document.getElementById('builderResultTitle').textContent=title;
+  document.getElementById('builderRecipeDetails').innerHTML=`<div class="result-section"><strong>Formula status</strong><p>${a.risk==='danger'?'High-risk warnings remain. Review the red formula check before freezing.':a.risk==='warning'?'The formula has warnings worth reviewing.':'No major formula conflict detected.'}</p></div><div class="result-section"><strong>First cycle</strong><p>${escapeHtml(latestRecipe.portion)} + ${escapeHtml(latestRecipe.program)}</p></div><div class="result-section"><strong>Ingredients</strong><ul>${latestRecipe.ingredients.map(i=>`<li>${escapeHtml(i.name)}: ${escapeHtml(i.amount)}${i.mixin?' — add after first spin':''}</li>`).join('')}</ul></div>`;
+  document.getElementById('builderForm').classList.add('hidden');document.querySelector('.progress-wrap').classList.add('hidden');document.getElementById('builderResult').classList.remove('hidden');
+}
+document.getElementById('editBuilderBtn').addEventListener('click',()=>{document.getElementById('builderForm').classList.remove('hidden');document.querySelector('.progress-wrap').classList.remove('hidden');document.getElementById('builderResult').classList.add('hidden');builderStep=5;updateBuilderUI()});
+document.getElementById('saveRecipeBtn').addEventListener('click',()=>{if(!latestRecipe)return;const saved=JSON.parse(localStorage.getItem('creamiRecipes')||'[]');saved.unshift(latestRecipe);localStorage.setItem('creamiRecipes',JSON.stringify(saved));const b=document.getElementById('saveRecipeBtn');b.textContent='Saved';setTimeout(()=>b.textContent='Save Recipe',1000)});
+
+function resetBuilder(){
+  document.getElementById('builderForm').reset();document.getElementById('ingredientRows').innerHTML='';builderStep=1;latestRecipe=null;document.getElementById('builderForm').classList.remove('hidden');document.querySelector('.progress-wrap').classList.remove('hidden');document.getElementById('builderResult').classList.add('hidden');applyModel();renderIngredientPicker();updateBuilderUI();
+}
+document.getElementById('resetAppBtn').addEventListener('click',()=>{if(currentRoute==='builder')resetBuilder();else if(currentRoute==='live')startLiveMode();else routeTo(currentRoute)});
+
+['builderRecipeStyle','targetProfile','builderBatchMode','startingStage','outputMode','textureTarget','sweetnessTarget','freezeHours','builderTopFlat','firstProgramSelect','builderPortionSelect','respinPlan'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{if(id==='builderRecipeStyle'||id==='targetProfile'||id==='outputMode')populateMachinePlan();updateFormulaEverywhere()}));
+
+function populateSettingScreen(){
+  const model=getModel();document.getElementById('settingTypeSelect').innerHTML=optionHtml(model.styles,s=>styleLabels[s]);
+  document.getElementById('portionSelect').innerHTML=model.zones?'<option value="Full">Full</option><option value="Top">Top</option><option value="Bottom">Bottom</option>':'<option value="Whole container">Whole container</option>';
+  document.getElementById('portionField').classList.toggle('hidden',!model.zones);
+}
+document.getElementById('settingForm').addEventListener('submit',event=>{event.preventDefault();const form=new FormData(event.target),style=form.get('type'),stage=form.get('stage'),frozen=form.get('frozen')==='on',flat=form.get('flat')==='on';let program=getModel().programMap[style]||'Ice Cream';if(stage==='respin')program='Re-Spin';if(stage==='mixins')program='Mix-In';const result=document.getElementById('settingResult');if(!frozen)result.innerHTML='<div class="result-badge">DO NOT PROCESS YET</div><h3>Freeze completely first</h3><div class="danger-box">A partially frozen base can process poorly.</div>';else if(!flat)result.innerHTML='<div class="result-badge">FIX BEFORE SPINNING</div><h3>Flatten the frozen surface</h3><div class="danger-box">Do not process a raised frozen hump.</div>';else result.innerHTML=`<div class="result-badge">USE THIS SETTING</div><h3>${escapeHtml(form.get('portion'))} + ${escapeHtml(program)}</h3><span class="model-chip">${escapeHtml(getModel().name)} ${escapeHtml(getModel().shortCode)}</span><div class="result-section"><strong>Next step</strong><p>${stage==='respin'?'Re-Spin once without liquid first. Add a small amount only if it remains dry.':stage==='mixins'?'Create a center hole, add firm mix-ins, and run Mix-In once. Fold sauces in manually.':'Inspect after the first cycle before deciding on a Re-Spin.'}</p></div>`;result.classList.remove('hidden')});
+
+const issueAdvice={powdery:['Powdery or crumbly','Run Re-Spin once without liquid. Add a small amount only if it remains dry.','Increase body or freezing-point support in the next batch.'],icy:['Icy','Re-spin once.','Increase appropriate solids, sugar/allulose, fat, fruit solids, or stabilizer.'],soupy:['Soupy or melted','Stop and refreeze completely.','Reduce alcohol or repeated cycles after the pint is soft.'],gummy:['Gummy','Let it soften and eat as-is.','Reduce gum, pudding mix, casein, or stacked thickeners.'],chalky:['Chalky','A small amount of milk followed by Re-Spin may help.','Reduce protein powder or add compatible body and fat.'],dense:['Too dense','Re-spin once if it is still frozen enough.','Reduce casein, yogurt, banana, pudding, or gum.'],fluffy:['Too fluffy','Compact with a spoon and let it sit briefly.','Reduce repeated Re-Spins.'],mixins:['Mix-ins pulverized','Fold additional pieces in by hand.','Use larger firm pieces and Mix-In only once.'],noise:['Machine bouncing','Stop and check installation and the frozen surface.','Do not continue if unusual movement persists.']};
+document.getElementById('issueGrid').addEventListener('click',event=>{const b=event.target.closest('[data-issue]');if(!b)return;document.querySelectorAll('#issueGrid button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');let a;if(b.dataset.issue==='bottom')a=getModel().zones?['Bottom still frozen','Select Bottom and run the appropriate program.','Match the section selector to what remains.']:['Bottom still frozen','This model has no Bottom zone. Level the remainder and use Re-Spin or thaw, remix, and refreeze flat.','Do not apply Deluxe zone instructions to this model.'];else a=issueAdvice[b.dataset.issue];const r=document.getElementById('fixResult');r.innerHTML=`<div class="result-badge">TROUBLESHOOTING</div><h3>${a[0]}</h3><div class="result-section"><strong>Fix now</strong><p>${a[1]}</p></div><div class="result-section"><strong>Next batch</strong><p>${a[2]}</p></div>`;r.classList.remove('hidden')});
+
+function startLiveMode(){showLiveStep('start')}
+function showLiveStep(key){const m=getModel();let step;if(key==='start')step={n:1,t:'Check the frozen surface',b:`The ${m.container} must be fully frozen and flat.`,o:[['Frozen and flat',m.zones?'portion':'type|Whole container',true],['There is a hump','flatten']]};else if(key==='flatten')step={n:1,t:'Flatten it first',b:'Scrape or level the raised surface before processing.',o:[['It is flat now',m.zones?'portion':'type|Whole container',true]]};else if(key==='portion')step={n:2,t:'Choose the section',b:'Match the selector to the frozen portion.',o:[['Full','type|Full'],['Top','type|Top'],['Bottom','type|Bottom']]};else if(key.startsWith('type|')){const portion=key.split('|')[1];step={n:m.zones?3:2,t:'Choose the recipe type',b:`Selected: ${portion}.`,o:m.styles.map((s,i)=>[styleLabels[s],`result|${portion}|${m.programMap[s]||'Ice Cream'}`,i===0])}}else if(key.startsWith('result|')){const[,portion,program]=key.split('|');step={n:m.zones?4:3,t:m.zones?`${portion} + ${program}`:program,b:'Run once, then inspect the texture.',o:[['Texture is good','done',true],['Powdery or crumbly','respin'],['Adding mix-ins','mixins']]}}else if(key==='respin')step={n:m.zones?5:4,t:'Re-Spin without liquid',b:'Add liquid only if it remains dry after the Re-Spin.',o:[['Done','done',true]]};else if(key==='mixins')step={n:m.zones?5:4,t:'Add mix-ins',b:'Create a center hole for firm pieces. Fold sauces and swirls in manually.',o:[['Done','done',true]]};else step={n:'✓',t:'Pint complete',b:'Save the formula and what happened during processing.',o:[['View saved recipes','recipes',true],['Start another','start']]};document.getElementById('liveNumber').textContent=step.n;document.getElementById('liveTitle').textContent=step.t;document.getElementById('liveBody').textContent=step.b;const o=document.getElementById('liveOptions');o.innerHTML='';step.o.forEach(([label,next,primary])=>{const b=document.createElement('button');b.textContent=label;if(primary)b.classList.add('primary');b.addEventListener('click',()=>next==='recipes'?routeTo('recipes'):showLiveStep(next));o.appendChild(b)})}
+document.getElementById('restartLiveBtn').addEventListener('click',startLiveMode);
+
+function renderRecipes(){const list=document.getElementById('recipeList'),saved=JSON.parse(localStorage.getItem('creamiRecipes')||'[]');if(!saved.length){list.innerHTML='<div class="empty-state">No recipes saved yet.</div>';return}list.innerHTML=saved.map(r=>`<article class="recipe-item" data-id="${r.id}"><span class="model-chip">${escapeHtml(r.modelName||'Model not recorded')}</span><span class="recipe-risk ${r.risk||'warning'}">${escapeHtml(r.risk||'unrated')}</span><h3>${escapeHtml(r.title)}</h3><div class="recipe-meta">${escapeHtml(r.program||'Program not recorded')} • ${escapeHtml(r.portion||'Whole container')}<br>${r.ingredients?.length||0} ingredients</div><div class="recipe-actions"><button data-action="duplicate">Duplicate</button><button data-action="delete">Delete</button></div></article>`).join('')}
+document.getElementById('recipeList').addEventListener('click',event=>{const b=event.target.closest('[data-action]');if(!b)return;const id=Number(b.closest('[data-id]').dataset.id);let saved=JSON.parse(localStorage.getItem('creamiRecipes')||'[]');if(b.dataset.action==='delete')saved=saved.filter(r=>r.id!==id);else{const r=saved.find(x=>x.id===id);if(r)saved.unshift({...r,id:Date.now(),title:`${r.title} Copy`})}localStorage.setItem('creamiRecipes',JSON.stringify(saved));renderRecipes()});
+
+function renderGuideTabs(){document.getElementById('guideCategoryTabs').innerHTML=`<button type="button" data-guide="all" class="${activeGuideCategory==='all'?'active':''}">All</button>${Object.entries(categories).map(([k,l])=>`<button type="button" data-guide="${k}" class="${activeGuideCategory===k?'active':''}">${escapeHtml(l)}</button>`).join('')}`}
+function renderGuide(){renderGuideTabs();const q=document.getElementById('ingredientSearch').value.toLowerCase();const items=Object.entries(ingredients).filter(([,i])=>(activeGuideCategory==='all'||i.category===activeGuideCategory)&&(i.label.toLowerCase().includes(q)||i.note.toLowerCase().includes(q)));document.getElementById('ingredientList').innerHTML=items.map(([,i])=>`<article class="info-item"><span class="category-tag">${escapeHtml(categories[i.category])}</span><h3>${escapeHtml(i.label)}</h3><p>${escapeHtml(i.note)}</p><div class="guide-tags">${i.mixin?'<span>Add after spin</span>':''}${i.gum?'<span>Measure carefully</span>':''}${i.thin?'<span>High-water</span>':''}${i.proteinPowder?'<span>Protein powder</span>':''}${i.freeze?'<span>Softens freeze</span>':''}</div></article>`).join('')||'<div class="empty-state">No matching ingredients.</div>'}
+document.getElementById('guideCategoryTabs').addEventListener('click',event=>{const b=event.target.closest('[data-guide]');if(!b)return;activeGuideCategory=b.dataset.guide;renderGuide()});document.getElementById('ingredientSearch').addEventListener('input',renderGuide);
+
+function renderQuickReference(){const m=getModel();document.getElementById('quickReferenceList').innerHTML=`<article class="quick-card"><span>${escapeHtml(m.shortCode)}</span><h3>${escapeHtml(m.container)}</h3><p>${escapeHtml(m.note)}</p></article><article class="quick-card"><span>LEAN OR HIGH-PROTEIN</span><h3>${m.programs.includes('CreamiFit')?'CreamiFit or Lite Ice Cream':'Lite Ice Cream'}</h3><p>Use the lean-program option when the base is low-fat, low-sugar, or protein-heavy.</p></article><article class="quick-card"><span>POWDERY FIRST SPIN</span><h3>Re-Spin without liquid first</h3><p>Add a small amount of liquid only if it remains dry.</p></article><article class="quick-card"><span>MIX-INS</span><h3>Firm pieces use Mix-In</h3><p>Fold sauces and nut-butter swirls in manually so they stay ribboned.</p></article><article class="quick-card"><span>SAFETY CHECK</span><h3>Flatten raised frozen surfaces</h3><p>Stop if the machine moves unusually or the container is installed incorrectly.</p></article>`}
+
+renderIngredientPicker();applyModel();updateBuilderUI();renderGuide();
+
+</script>
+</body>
+</html>
