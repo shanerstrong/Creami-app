@@ -1,0 +1,2275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d1117" />
+  <meta name="description" content="Mobile-first model-aware frozen treat recipe and troubleshooting assistant for Ninja CREAMi machines." />
+  <title>PintLogic</title>
+  <style>
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #090d12;
+  --panel: #121821;
+  --panel-2: #171f2a;
+  --line: #283242;
+  --text: #f5f7fa;
+  --muted: #9aa7b8;
+  --accent: #7dd3fc;
+  --accent-2: #38bdf8;
+  --success: #6ee7b7;
+  --warning: #fbbf24;
+  --danger: #fb7185;
+  --shadow: 0 18px 50px rgba(0,0,0,.28);
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at top right, rgba(56,189,248,.12), transparent 28rem),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+button, input, select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app-shell {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding-bottom: calc(92px + env(safe-area-inset-bottom));
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(16px + env(safe-area-inset-top)) 18px 14px;
+  backdrop-filter: blur(18px);
+  background: rgba(9,13,18,.82);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+h1, h2, h3, p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 0;
+  font-size: 1.45rem;
+  letter-spacing: -.03em;
+}
+
+h2 {
+  margin-bottom: 0;
+  font-size: 1.55rem;
+  letter-spacing: -.035em;
+}
+
+h3 {
+  font-size: 1.05rem;
+  letter-spacing: -.02em;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--accent);
+  font-size: .69rem;
+  font-weight: 800;
+  letter-spacing: .15em;
+}
+
+.icon-btn, .back-btn {
+  border: 1px solid var(--line);
+  color: var(--text);
+  background: var(--panel);
+  border-radius: 14px;
+}
+
+.icon-btn {
+  width: 42px;
+  height: 42px;
+  font-size: 1.25rem;
+}
+
+main {
+  padding: 18px;
+}
+
+.screen {
+  display: none;
+  animation: fadeIn .2s ease;
+}
+
+.screen.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-card {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 110px;
+  gap: 12px;
+  align-items: center;
+  min-height: 210px;
+  padding: 22px;
+  border: 1px solid rgba(125,211,252,.2);
+  border-radius: 26px;
+  background:
+    linear-gradient(145deg, rgba(125,211,252,.13), rgba(18,24,33,.93) 45%),
+    var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.hero-card::after {
+  content: "";
+  position: absolute;
+  width: 190px;
+  height: 190px;
+  right: -70px;
+  top: -85px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 50%;
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-copy h2 {
+  margin: 14px 0 10px;
+  font-size: clamp(1.7rem, 7vw, 2.4rem);
+  line-height: 1.02;
+}
+
+.hero-copy p {
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+.status-pill {
+  display: inline-flex;
+  padding: 7px 10px;
+  border: 1px solid rgba(110,231,183,.24);
+  border-radius: 999px;
+  color: var(--success);
+  background: rgba(110,231,183,.08);
+  font-size: .72rem;
+  font-weight: 800;
+}
+
+.pint-visual {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pint-lid {
+  width: 92px;
+  height: 17px;
+  border: 2px solid #dce6ef;
+  border-radius: 10px 10px 6px 6px;
+  background: #eef5fb;
+  box-shadow: 0 4px 14px rgba(255,255,255,.15);
+}
+
+.pint-cup {
+  position: relative;
+  overflow: hidden;
+  width: 84px;
+  height: 110px;
+  margin-top: -1px;
+  border: 2px solid rgba(255,255,255,.75);
+  border-top: none;
+  border-radius: 0 0 20px 20px;
+  background: rgba(255,255,255,.06);
+}
+
+.pint-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 72%;
+  background: linear-gradient(#bdefff, #67d0fb);
+  opacity: .86;
+}
+
+.pint-cup span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #06121a;
+  font-weight: 900;
+  font-size: .72rem;
+  letter-spacing: .1em;
+}
+
+.primary-action {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 18px 0;
+  padding: 17px;
+  border: 0;
+  border-radius: 20px;
+  color: #041018;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  text-align: left;
+  box-shadow: 0 12px 28px rgba(56,189,248,.2);
+}
+
+.primary-action strong,
+.feature-card strong {
+  display: block;
+}
+
+.primary-action small,
+.feature-card small,
+.choice-row small,
+.switch-row small {
+  display: block;
+  margin-top: 4px;
+  color: inherit;
+  opacity: .72;
+  line-height: 1.35;
+}
+
+.action-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(0,0,0,.14);
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.feature-card {
+  min-height: 145px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  color: var(--text);
+  background: linear-gradient(145deg, rgba(255,255,255,.025), transparent), var(--panel);
+  text-align: left;
+}
+
+.feature-card:hover {
+  border-color: rgba(125,211,252,.48);
+  transform: translateY(-1px);
+}
+
+.feature-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 18px;
+  border-radius: 12px;
+  color: var(--accent);
+  background: rgba(125,211,252,.09);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.screen-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.back-btn {
+  width: 42px;
+  height: 42px;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.progress-wrap {
+  margin-bottom: 16px;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: .78rem;
+}
+
+.progress-track {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--panel);
+}
+
+.progress-bar {
+  height: 100%;
+  width: 25%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width .2s ease;
+}
+
+.builder-step {
+  display: none;
+}
+
+.builder-step.active {
+  display: block;
+}
+
+.question-card, .result-card, .live-card, .quick-card {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--panel);
+  box-shadow: 0 12px 30px rgba(0,0,0,.13);
+}
+
+.choice-list {
+  display: grid;
+  gap: 10px;
+}
+
+.choice-row, .switch-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel-2);
+}
+
+.choice-row input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent-2);
+}
+
+.choice-row span,
+.switch-row span {
+  flex: 1;
+}
+
+.choice-row small,
+.switch-row small {
+  color: var(--muted);
+}
+
+.step-actions, .result-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.primary-btn, .secondary-btn {
+  min-height: 48px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-weight: 800;
+}
+
+.primary-btn {
+  border: 0;
+  color: #03111a;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+}
+
+.secondary-btn {
+  border: 1px solid var(--line);
+  color: var(--text);
+  background: var(--panel);
+}
+
+.primary-btn:disabled,
+.secondary-btn:disabled {
+  opacity: .35;
+}
+
+.full {
+  width: 100%;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.result-card {
+  margin-top: 16px;
+}
+
+.result-badge {
+  margin-bottom: 8px;
+  color: var(--success);
+  font-size: .7rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.result-card h3 {
+  font-size: 1.3rem;
+  margin-bottom: 12px;
+}
+
+.result-section {
+  padding: 13px 0;
+  border-top: 1px solid var(--line);
+}
+
+.result-section:first-of-type {
+  border-top: 0;
+}
+
+.result-section strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.result-section p,
+.result-section li {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.stack-form {
+  display: grid;
+  gap: 14px;
+}
+
+.field-label {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+  color: var(--muted);
+  font-size: .85rem;
+  font-weight: 700;
+}
+
+input[type="text"], select, .search-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 13px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: var(--text);
+  background: var(--panel-2);
+  outline: none;
+}
+
+input[type="text"]:focus, select:focus, .search-input:focus {
+  border-color: var(--accent-2);
+}
+
+.switch-row {
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.switch-row input {
+  width: 42px;
+  height: 24px;
+  accent-color: var(--accent-2);
+}
+
+.issue-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.issue-grid button {
+  min-height: 88px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  color: var(--text);
+  background: var(--panel);
+  font-weight: 800;
+}
+
+.issue-grid button:hover,
+.issue-grid button.selected {
+  border-color: var(--accent-2);
+  background: rgba(56,189,248,.08);
+}
+
+.live-card {
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.live-step-number {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  color: #041018;
+  background: var(--accent);
+  font-size: 1.35rem;
+  font-weight: 900;
+}
+
+.live-card p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.live-options {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.live-options button {
+  min-height: 48px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: var(--text);
+  background: var(--panel-2);
+  font-weight: 800;
+}
+
+.live-options button.primary {
+  border: 0;
+  color: #061018;
+  background: var(--accent);
+}
+
+#restartLiveBtn {
+  margin-top: 12px;
+}
+
+.recipe-list, .info-list, .quick-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.recipe-item, .info-item {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--panel);
+}
+
+.recipe-meta, .info-item p, .quick-card p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.recipe-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.recipe-actions button {
+  flex: 1;
+  min-height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  color: var(--text);
+  background: var(--panel-2);
+}
+
+.search-input {
+  margin-bottom: 14px;
+}
+
+.info-item h3 {
+  margin-bottom: 6px;
+}
+
+.quick-card span {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: var(--accent);
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.quick-card.danger span {
+  color: var(--danger);
+}
+
+.bottom-nav {
+  position: fixed;
+  z-index: 30;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: min(720px, 100%);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 9px 12px calc(9px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(255,255,255,.08);
+  background: rgba(9,13,18,.94);
+  backdrop-filter: blur(18px);
+}
+
+.bottom-nav button {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  border: 0;
+  color: var(--muted);
+  background: transparent;
+  font-size: .72rem;
+}
+
+.bottom-nav button span {
+  font-size: 1.2rem;
+}
+
+.bottom-nav button.active {
+  color: var(--accent);
+}
+
+.empty-state {
+  padding: 28px 18px;
+  border: 1px dashed var(--line);
+  border-radius: 18px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.warning-box {
+  padding: 12px;
+  border: 1px solid rgba(251,191,36,.25);
+  border-radius: 14px;
+  color: #fde68a;
+  background: rgba(251,191,36,.08);
+  line-height: 1.45;
+}
+
+.danger-box {
+  padding: 12px;
+  border: 1px solid rgba(251,113,133,.28);
+  border-radius: 14px;
+  color: #fecdd3;
+  background: rgba(251,113,133,.08);
+  line-height: 1.45;
+}
+
+@media (min-width: 620px) {
+  main {
+    padding: 24px;
+  }
+
+  .feature-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .issue-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+
+.model-bar {
+  position: sticky;
+  top: calc(73px + env(safe-area-inset-top));
+  z-index: 19;
+  display: grid;
+  gap: 7px;
+  padding: 11px 18px 12px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  background: rgba(9,13,18,.94);
+  backdrop-filter: blur(18px);
+}
+
+.model-bar label {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.model-bar label > span {
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.model-bar select {
+  min-height: 42px;
+  font-size: .82rem;
+  font-weight: 800;
+}
+
+.model-summary {
+  color: var(--muted);
+  font-size: .72rem;
+  line-height: 1.35;
+  text-align: right;
+}
+
+.choice-row.model-unavailable,
+.option-unavailable {
+  display: none !important;
+}
+
+.model-chip {
+  display: inline-flex;
+  margin-bottom: 8px;
+  padding: 5px 8px;
+  border: 1px solid rgba(125,211,252,.2);
+  border-radius: 999px;
+  color: var(--accent);
+  background: rgba(125,211,252,.07);
+  font-size: .68rem;
+  font-weight: 900;
+}
+
+.independent-note {
+  margin: 20px 4px 0;
+  color: #6f7b8a;
+  font-size: .68rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+@media (max-width: 420px) {
+  .model-bar label {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .model-summary {
+    text-align: left;
+  }
+}
+
+
+/* Recipe Lab v2 */
+.section-kicker {
+  margin-bottom: 7px;
+  color: var(--accent);
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .14em;
+}
+
+.section-heading-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.compact-btn {
+  min-height: 38px;
+  padding: 8px 11px;
+  border: 1px solid rgba(125,211,252,.26);
+  border-radius: 12px;
+  color: var(--accent);
+  background: rgba(125,211,252,.07);
+  font-size: .78rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.helper-text,
+.model-note {
+  color: var(--muted);
+  font-size: .8rem;
+  line-height: 1.5;
+}
+
+.model-note {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel-2);
+}
+
+.ingredient-rows {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.ingredient-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(72px, .65fr) minmax(88px, .75fr) 40px;
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel-2);
+}
+
+.ingredient-row select,
+.ingredient-row input {
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 10px;
+}
+
+.ingredient-row .custom-ingredient {
+  grid-column: 1 / 4;
+}
+
+.remove-ingredient {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(251,113,133,.25);
+  border-radius: 12px;
+  color: #fecdd3;
+  background: rgba(251,113,133,.07);
+  font-size: 1.15rem;
+}
+
+.ingredient-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.quick-add-wrap {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.quick-add-wrap > span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: .72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+
+.quick-add,
+.program-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.quick-add button,
+.program-chip {
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text);
+  background: var(--panel-2);
+  font-size: .72rem;
+  font-weight: 800;
+}
+
+.inline-number-unit,
+.amount-unit-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.inline-number-unit span {
+  color: var(--muted);
+  font-size: .82rem;
+}
+
+.amount-unit-grid select {
+  width: 110px;
+}
+
+.formula-watch {
+  margin-top: 12px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--panel);
+}
+
+.formula-watch.watch-safe {
+  border-color: rgba(110,231,183,.28);
+}
+
+.formula-watch.watch-warning {
+  border-color: rgba(251,191,36,.35);
+}
+
+.formula-watch.watch-danger {
+  border-color: rgba(251,113,133,.38);
+}
+
+.watch-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.watch-header h3 {
+  margin: 0;
+}
+
+.risk-pill {
+  display: inline-flex;
+  padding: 6px 9px;
+  border-radius: 999px;
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.risk-pill.safe { color: var(--success); background: rgba(110,231,183,.09); }
+.risk-pill.warning { color: #fde68a; background: rgba(251,191,36,.09); }
+.risk-pill.danger { color: #fecdd3; background: rgba(251,113,133,.1); }
+
+.formula-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.formula-metric {
+  padding: 11px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel-2);
+}
+
+.formula-metric span {
+  display: block;
+  color: var(--muted);
+  font-size: .68rem;
+  font-weight: 800;
+}
+
+.formula-metric strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 1rem;
+}
+
+.warning-list {
+  display: grid;
+  gap: 8px;
+}
+
+.formula-warning {
+  padding: 11px 12px;
+  border-radius: 14px;
+  font-size: .82rem;
+  line-height: 1.45;
+}
+
+.formula-warning strong {
+  display: block;
+  margin-bottom: 2px;
+}
+
+.formula-warning.info {
+  border: 1px solid rgba(125,211,252,.2);
+  color: #d9f2ff;
+  background: rgba(125,211,252,.06);
+}
+
+.formula-warning.warning {
+  border: 1px solid rgba(251,191,36,.25);
+  color: #fde68a;
+  background: rgba(251,191,36,.07);
+}
+
+.formula-warning.danger {
+  border: 1px solid rgba(251,113,133,.28);
+  color: #fecdd3;
+  background: rgba(251,113,133,.08);
+}
+
+.program-recommendation {
+  margin-bottom: 14px;
+  padding: 13px;
+  border: 1px solid rgba(125,211,252,.22);
+  border-radius: 15px;
+  background: rgba(125,211,252,.06);
+  line-height: 1.45;
+}
+
+.program-recommendation strong {
+  display: block;
+  color: var(--accent);
+}
+
+.machine-options {
+  display: grid;
+  gap: 9px;
+  margin-top: 12px;
+}
+
+.machine-option-note {
+  padding: 11px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: var(--muted);
+  background: var(--panel-2);
+  font-size: .8rem;
+  line-height: 1.45;
+}
+
+.review-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.review-block {
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: var(--panel-2);
+}
+
+.review-block > span {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.review-block p,
+.review-block ul {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.recipe-risk {
+  display: inline-flex;
+  margin-left: 5px;
+  padding: 4px 7px;
+  border-radius: 999px;
+  font-size: .62rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.recipe-risk.safe { color: var(--success); background: rgba(110,231,183,.08); }
+.recipe-risk.warning { color: #fde68a; background: rgba(251,191,36,.08); }
+.recipe-risk.danger { color: #fecdd3; background: rgba(251,113,133,.08); }
+
+@media (max-width: 520px) {
+  .ingredient-row {
+    grid-template-columns: minmax(0, 1fr) 78px 82px 38px;
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .ingredient-row select,
+  .ingredient-row input {
+    padding: 0 7px;
+    font-size: .82rem;
+  }
+
+  .section-heading-row {
+    align-items: center;
+  }
+}
+
+@media (max-width: 390px) {
+  .ingredient-row {
+    grid-template-columns: minmax(0, 1fr) 76px 38px;
+  }
+
+  .ingredient-row .ingredient-unit {
+    grid-column: 1 / 3;
+  }
+
+  .ingredient-row .custom-ingredient {
+    grid-column: 1 / 3;
+  }
+}
+
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow" id="modelEyebrow">MODEL-AWARE FROZEN TREAT ASSISTANT</div>
+        <h1>PintLogic</h1>
+      </div>
+      <button class="icon-btn" id="resetAppBtn" aria-label="Reset current screen">↺</button>
+    </header>
+
+    <section class="model-bar" aria-label="Machine selection">
+      <label for="modelSelect">
+        <span>Your machine</span>
+        <select id="modelSelect">
+          <option value="nc500">CREAMi Deluxe — NC500/NC501</option>
+          <option value="nc600">CREAMi XL — NC600/NC601</option>
+          <option value="nc300">CREAMi Classic — NC299/NC300/NC301/NC350/NC351</option>
+          <option value="nc700">CREAMi Scoop &amp; Swirl — NC700/NC701</option>
+          <option value="breeze">CREAMi Breeze — NC100/NC200 series</option>
+        </select>
+      </label>
+      <div class="model-summary" id="modelSummary">24 oz XL tub • Full, Top, and Bottom processing</div>
+    </section>
+
+    <main id="app">
+      <section class="screen active" id="homeScreen">
+        <div class="hero-card">
+          <div class="hero-copy">
+            <span class="status-pill" id="supportBadge">Full NC501 support</span>
+            <h2>Make the pint. Pick the setting. Fix the texture.</h2>
+            <p>Machine-specific programs, container size, and portion controls.</p>
+          </div>
+          <div class="pint-visual" aria-hidden="true">
+            <div class="pint-lid"></div>
+            <div class="pint-cup">
+              <div class="pint-fill"></div>
+              <span id="pintModel">NC501</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="primary-action" data-route="live">
+          <span class="action-icon">▶</span>
+          <span>
+            <strong>I just took a pint out</strong>
+            <small>Start the live spin assistant</small>
+          </span>
+        </button>
+
+        <div class="feature-grid">
+          <button class="feature-card" data-route="builder">
+            <span class="feature-icon">＋</span>
+            <strong>Build a Recipe</strong>
+            <small>Formula warnings + machine plan</small>
+          </button>
+
+          <button class="feature-card" data-route="setting">
+            <span class="feature-icon">◎</span>
+            <strong>Which Setting?</strong>
+            <small id="settingFeatureText">Program, Full, Top, or Bottom</small>
+          </button>
+
+          <button class="feature-card" data-route="fix">
+            <span class="feature-icon">⚠</span>
+            <strong>Fix My Pint</strong>
+            <small>Troubleshoot the texture</small>
+          </button>
+
+          <button class="feature-card" data-route="recipes">
+            <span class="feature-icon">★</span>
+            <strong>My Recipes</strong>
+            <small>Save tests and notes</small>
+          </button>
+
+          <button class="feature-card" data-route="ingredients">
+            <span class="feature-icon">◫</span>
+            <strong>Ingredient Guide</strong>
+            <small>What each ingredient does</small>
+          </button>
+
+          <button class="feature-card" data-route="quick">
+            <span class="feature-icon">≡</span>
+            <strong>Quick Reference</strong>
+            <small id="quickFeatureText">Model-specific controls</small>
+          </button>
+        </div>
+      </section>
+
+      <section class="screen" id="builderScreen">
+        <div class="screen-heading">
+          <button class="back-btn" data-route="home">‹</button>
+          <div>
+            <span class="eyebrow" id="builderModelEyebrow">MODEL-AWARE RECIPE LAB</span>
+            <h2>Build a Recipe</h2>
+          </div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-label"><span id="builderStepLabel">Step 1 of 5</span><span id="builderPercent">20%</span></div>
+          <div class="progress-track"><div class="progress-bar" id="builderProgress"></div></div>
+        </div>
+
+        <form id="builderForm">
+          <div class="builder-step active" data-step="1">
+            <div class="question-card">
+              <div class="section-kicker">RECIPE SETUP</div>
+              <h3>What are you trying to make?</h3>
+              <label class="field-label">Recipe name
+                <input type="text" id="recipeName" name="recipeName" placeholder="Example: Chocolate Protein Pint" />
+              </label>
+              <label class="field-label">Recipe style
+                <select id="builderRecipeStyle" name="recipeStyle"></select>
+              </label>
+              <label class="field-label">Nutrition profile
+                <select id="targetProfile" name="targetProfile">
+                  <option value="balanced">Balanced</option>
+                  <option value="high-protein" selected>High protein</option>
+                  <option value="low-calorie">Lower calorie</option>
+                  <option value="dairy-free">Dairy-free</option>
+                  <option value="fruit-forward">Fruit-forward</option>
+                  <option value="indulgent">Indulgent</option>
+                </select>
+              </label>
+              <label class="field-label">Batch size
+                <select id="builderBatchMode" name="batchMode"></select>
+              </label>
+              <label class="field-label hidden" id="outputModeField">Finished format
+                <select id="outputMode" name="outputMode">
+                  <option value="scoop">Scooped</option>
+                  <option value="softserve">Soft serve / swirl</option>
+                </select>
+              </label>
+              <div class="model-note" id="builderModelNote"></div>
+            </div>
+          </div>
+
+          <div class="builder-step" data-step="2">
+            <div class="question-card">
+              <div class="section-heading-row">
+                <div>
+                  <div class="section-kicker">FORMULA</div>
+                  <h3>Add exact ingredients</h3>
+                </div>
+                <button type="button" class="compact-btn" id="loadTemplateBtn">Load starter</button>
+              </div>
+              <p class="helper-text">Use grams or ounces for repeatability. Cups, tablespoons, teaspoons, milliliters, scoops, and items are also supported.</p>
+              <div id="ingredientRows" class="ingredient-rows"></div>
+              <div class="ingredient-actions">
+                <button type="button" class="secondary-btn" id="addIngredientBtn">＋ Add ingredient</button>
+                <button type="button" class="secondary-btn" id="clearIngredientsBtn">Clear</button>
+              </div>
+              <div class="quick-add-wrap">
+                <span>Quick add</span>
+                <div id="quickAddIngredients" class="quick-add"></div>
+              </div>
+            </div>
+            <div id="formulaWatchStep2" class="formula-watch" aria-live="polite"></div>
+          </div>
+
+          <div class="builder-step" data-step="3">
+            <div class="question-card">
+              <div class="section-kicker">TEXTURE TARGET</div>
+              <h3>How should it finish?</h3>
+              <label class="field-label">Preferred texture
+                <select id="textureTarget" name="textureTarget">
+                  <option value="soft">Soft and immediately spoonable</option>
+                  <option value="scoopable" selected>Scoopable</option>
+                  <option value="dense">Dense / gelato-like</option>
+                  <option value="fluffy">Lighter and fluffy</option>
+                </select>
+              </label>
+              <label class="field-label">Sweetness target
+                <select id="sweetnessTarget" name="sweetnessTarget">
+                  <option value="low">Low sweetness</option>
+                  <option value="normal" selected>Normal sweetness</option>
+                  <option value="sweet">Dessert-shop sweet</option>
+                </select>
+              </label>
+              <label class="field-label">Freeze time
+                <div class="inline-number-unit">
+                  <input type="number" id="freezeHours" min="1" max="72" step="1" value="24" inputmode="decimal" />
+                  <span>hours</span>
+                </div>
+              </label>
+              <label class="switch-row">
+                <span><strong>Mix-ins planned?</strong><small>Cookies, candy, chips, nuts, or fruit pieces</small></span>
+                <input type="checkbox" id="mixInsPlanned" />
+              </label>
+              <div id="mixInAmountRow" class="hidden">
+                <label class="field-label">Planned mix-in amount
+                  <div class="amount-unit-grid">
+                    <input type="number" id="mixInQty" min="0" step="0.1" value="2" inputmode="decimal" />
+                    <select id="mixInUnit">
+                      <option value="tbsp">tbsp</option>
+                      <option value="g">g</option>
+                      <option value="oz">oz</option>
+                      <option value="cup">cup</option>
+                    </select>
+                  </div>
+                </label>
+              </div>
+              <label class="switch-row">
+                <span><strong>Frozen surface will be flat?</strong><small>No raised frozen hump</small></span>
+                <input type="checkbox" id="builderTopFlat" checked />
+              </label>
+            </div>
+            <div id="formulaWatchStep3" class="formula-watch" aria-live="polite"></div>
+          </div>
+
+          <div class="builder-step" data-step="4">
+            <div class="question-card">
+              <div class="section-kicker">MACHINE PLAN</div>
+              <h3 id="machinePlanHeading">Choose the first spin</h3>
+              <div class="program-recommendation" id="programRecommendation"></div>
+              <label class="field-label">First program
+                <select id="firstProgramSelect" name="firstProgram"></select>
+              </label>
+              <label class="field-label" id="builderPortionField">Processing section
+                <select id="builderPortionSelect" name="builderPortion"></select>
+              </label>
+              <label class="field-label">What stage is this?
+                <select id="processingStage" name="processingStage">
+                  <option value="first">First spin from frozen</option>
+                  <option value="leftover">Reprocessing frozen leftovers</option>
+                  <option value="mixonly">Mix-In only</option>
+                </select>
+              </label>
+              <label class="field-label">Re-spin plan
+                <select id="respinPlan" name="respinPlan">
+                  <option value="inspect" selected>Inspect after first spin</option>
+                  <option value="dry">Expect one dry Re-Spin</option>
+                  <option value="liquid">Re-Spin with liquid only if still dry</option>
+                  <option value="none">No planned Re-Spin</option>
+                </select>
+              </label>
+              <div class="machine-options" id="machineSpecificOptions"></div>
+            </div>
+            <div id="formulaWatchStep4" class="formula-watch" aria-live="polite"></div>
+          </div>
+
+          <div class="builder-step" data-step="5">
+            <div class="question-card">
+              <div class="section-kicker">FINAL CHECK</div>
+              <h3>Review before freezing</h3>
+              <div id="builderReview"></div>
+            </div>
+            <div id="formulaWatchStep5" class="formula-watch" aria-live="polite"></div>
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="secondary-btn" id="builderBackBtn" disabled>Back</button>
+            <button type="button" class="primary-btn" id="builderNextBtn">Next</button>
+          </div>
+        </form>
+
+        <div class="result-card hidden" id="builderResult">
+          <div class="result-badge">RECIPE PLAN CREATED</div>
+          <h3 id="builderResultTitle"></h3>
+          <div id="builderRecipeDetails"></div>
+          <div class="result-actions">
+            <button class="secondary-btn" id="editBuilderBtn">Edit</button>
+            <button class="primary-btn" id="saveRecipeBtn">Save Recipe</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="settingScreen">
+        <div class="screen-heading">
+          <button class="back-btn" data-route="home">‹</button>
+          <div><span class="eyebrow">DECISION ASSISTANT</span><h2>Which Setting?</h2></div>
+        </div>
+
+        <form id="settingForm" class="stack-form">
+          <div class="question-card">
+            <label class="field-label">Recipe type
+              <select name="type" id="settingTypeSelect">
+                <option value="protein">High-protein or low-fat</option>
+                <option value="regular">Traditional ice cream</option>
+                <option value="fruit">Fruit-heavy or sorbet</option>
+                <option value="yogurt">Frozen yogurt</option>
+                <option value="smoothie">Smoothie bowl</option>
+                <option value="softserve">Soft serve</option>
+              </select>
+            </label>
+            <label class="field-label" id="portionField">How much is being processed?
+              <select name="portion" id="portionSelect">
+                <option value="full">Entire pint</option>
+                <option value="top">Top half only</option>
+                <option value="bottom">Bottom half only</option>
+              </select>
+            </label>
+            <label class="field-label">What are you doing?
+              <select name="stage">
+                <option value="first">First spin</option>
+                <option value="respin">Texture is powdery after first spin</option>
+                <option value="mixins">Adding mix-ins</option>
+                <option value="leftovers">Processing frozen leftovers</option>
+              </select>
+            </label>
+            <label class="switch-row">
+              <span><strong>Completely frozen?</strong><small>At least 12 to 24 hours</small></span>
+              <input type="checkbox" name="frozen" checked />
+            </label>
+            <label class="switch-row">
+              <span><strong>Top is flat?</strong><small>No raised frozen hump</small></span>
+              <input type="checkbox" name="flat" checked />
+            </label>
+          </div>
+          <button type="submit" class="primary-btn full">Get Recommendation</button>
+        </form>
+
+        <div class="result-card hidden" id="settingResult"></div>
+      </section>
+
+      <section class="screen" id="fixScreen">
+        <div class="screen-heading">
+          <button class="back-btn" data-route="home">‹</button>
+          <div><span class="eyebrow">TROUBLESHOOTER</span><h2>Fix My Pint</h2></div>
+        </div>
+
+        <div class="issue-grid" id="issueGrid">
+          <button data-issue="powdery">Powdery / crumbly</button>
+          <button data-issue="icy">Icy</button>
+          <button data-issue="soupy">Soupy</button>
+          <button data-issue="gummy">Gummy</button>
+          <button data-issue="chalky">Chalky</button>
+          <button data-issue="dense">Too dense</button>
+          <button data-issue="fluffy">Too fluffy</button>
+          <button data-issue="bottom">Bottom still frozen</button>
+          <button data-issue="mixins">Mix-ins pulverized</button>
+          <button data-issue="noise">Machine bouncing</button>
+        </div>
+
+        <div class="result-card hidden" id="fixResult"></div>
+      </section>
+
+      <section class="screen" id="liveScreen">
+        <div class="screen-heading">
+          <button class="back-btn" data-route="home">‹</button>
+          <div><span class="eyebrow">LIVE MODE</span><h2>Spin Assistant</h2></div>
+        </div>
+
+        <div class="live-card">
+          <div class="live-step-number" id="liveNumber">1</div>
+          <h3 id="liveTitle">Check the top</h3>
+          <p id="liveBody">Make sure the frozen surface is flat. Remove any raised hump before processing.</p>
+          <div class="live-options" id="liveOptions"></div>
+        </div>
+        <button class="secondary-btn full" id="restartLiveBtn">Restart</button>
+      </section>
+
+      <section class="screen" id="recipesScreen">
+        <div class="screen-heading">
+          <button class="back-btn" data-route="home">‹</button>
+          <div><span class="eyebrow">TEST LOG</span><h2>My Recipes</h2></div>
+        </div>
+        <div id="recipeList" class="recipe-list"></div>
+      </section>
+
+      <section class="screen" id="ingredientsScreen">
+        <div class="screen-heading">
+          <button class="back-btn" data-route="home">‹</button>
+          <div><span class="eyebrow">FUNCTIONAL GUIDE</span><h2>Ingredient Guide</h2></div>
+        </div>
+        <input class="search-input" id="ingredientSearch" placeholder="Search ingredients..." />
+        <div class="info-list" id="ingredientList"></div>
+      </section>
+
+      <section class="screen" id="quickScreen">
+        <div class="screen-heading">
+          <button class="back-btn" data-route="home">‹</button>
+          <div><span class="eyebrow" id="quickModelEyebrow">SELECTED MODEL</span><h2>Quick Reference</h2></div>
+        </div>
+        <div class="quick-stack">
+          <article class="quick-card" id="quickIceCream">
+            <span>ICE CREAM</span>
+            <h3>Use for richer traditional bases</h3>
+            <p>Higher fat, higher sugar, cream, whole milk, custard-style, or dense commercial-style recipes.</p>
+          </article>
+          <article class="quick-card" id="quickLite">
+            <span id="quickLeanProgram">LITE ICE CREAM</span>
+            <h3><span id="quickLeanTitle">Use for leaner or high-protein bases</span></h3>
+            <p><span id="quickLeanBody">Low-fat milk, protein powder, sugar substitutes, pudding mix, and reduced-calorie recipes.</span></p>
+          </article>
+          <article class="quick-card">
+            <span>RE-SPIN</span>
+            <h3>Use after a powdery first spin</h3>
+            <p>Re-spin once without liquid first. Add only a small amount of liquid if it stays dry.</p>
+          </article>
+          <article class="quick-card" id="quickZones">
+            <span>FULL / TOP / BOTTOM</span>
+            <h3>Match the button to the portion</h3>
+            <p id="quickZonesBody">Full processes the entire tub. Top and Bottom are for the corresponding section.</p>
+          </article>
+          <article class="quick-card">
+            <span>AVAILABLE PROGRAMS</span>
+            <h3 id="quickProgramTitle">Programs on the selected machine</h3>
+            <div id="modelProgramChips" class="program-chips"></div>
+          </article>
+          <article class="quick-card danger">
+            <span>STOP</span>
+            <h3>Do not process a raised frozen hump</h3>
+            <p>Flatten the surface first. Stop if the machine is moving excessively, the pint is installed incorrectly, or the blade assembly is not secure.</p>
+          </article>
+        </div>
+      </section>
+      <p class="independent-note">Independent prototype. Not affiliated with or endorsed by SharkNinja.</p>
+    </main>
+
+    <nav class="bottom-nav">
+      <button data-route="home" class="active"><span>⌂</span>Home</button>
+      <button data-route="builder"><span>＋</span>Build</button>
+      <button data-route="fix"><span>⚠</span>Fix</button>
+      <button data-route="recipes"><span>★</span>Saved</button>
+    </nav>
+  </div>
+
+  <script>
+const screens = {
+  home: document.getElementById('homeScreen'),
+  builder: document.getElementById('builderScreen'),
+  setting: document.getElementById('settingScreen'),
+  fix: document.getElementById('fixScreen'),
+  live: document.getElementById('liveScreen'),
+  recipes: document.getElementById('recipesScreen'),
+  ingredients: document.getElementById('ingredientsScreen'),
+  quick: document.getElementById('quickScreen')
+};
+
+const styleLabels = {
+  'high-protein': 'High-protein ice cream',
+  regular: 'Traditional ice cream',
+  sorbet: 'Sorbet',
+  gelato: 'Gelato',
+  milkshake: 'Milkshake',
+  'smoothie-bowl': 'Smoothie bowl',
+  'frozen-yogurt': 'Frozen yogurt',
+  'italian-ice': 'Italian ice',
+  'creami-ccino': 'Creamiccino',
+  'frozen-drink': 'Frozen drink',
+  slushi: 'Slushi',
+  frappe: 'Frappe',
+  'dairy-free': 'Dairy-free frozen dessert',
+  'soft-serve': 'Soft serve',
+  'fruit-whip': 'Fruit whip',
+  'frozen-custard': 'Frozen custard'
+};
+
+const modelData = {
+  nc500: {
+    name: 'CREAMi Deluxe', code: 'NC500/NC501', shortCode: 'NC501', capacityOz: 24,
+    container: '24 oz XL tub', zones: true, support: 'Full NC501 support',
+    styles: ['high-protein','regular','sorbet','gelato','milkshake','italian-ice','frozen-yogurt','creami-ccino','frozen-drink','slushi'],
+    programs: ['Ice Cream','Lite Ice Cream','Sorbet','Gelato','Milkshake','Italian Ice','Frozen Yogurt','Creamiccino','Frozen Drink','Slushi','Mix-In'],
+    programMap: {'high-protein':'Lite Ice Cream',regular:'Ice Cream',sorbet:'Sorbet',gelato:'Gelato',milkshake:'Milkshake','italian-ice':'Italian Ice','frozen-yogurt':'Frozen Yogurt','creami-ccino':'Creamiccino','frozen-drink':'Frozen Drink',slushi:'Slushi'},
+    note: 'The Deluxe uses a 24 oz tub and can process Full, Top, or Bottom. Recipe volume and spin section must match.'
+  },
+  nc600: {
+    name: 'CREAMi XL', code: 'NC600/NC601', shortCode: 'NC601', capacityOz: 24,
+    container: '24 oz XL tub', zones: true, support: 'Model-aware support',
+    styles: ['high-protein','regular','sorbet','gelato','milkshake','frappe','smoothie-bowl','frozen-yogurt','dairy-free'],
+    programs: ['Ice Cream','Lite Ice Cream','Sorbet','Gelato','Milkshake','Frappe','Smoothie Bowl','Frozen Yogurt','CreamiFit','Dairy-Free','Mix-In'],
+    programMap: {'high-protein':'CreamiFit',regular:'Ice Cream',sorbet:'Sorbet',gelato:'Gelato',milkshake:'Milkshake',frappe:'Frappe','smoothie-bowl':'Smoothie Bowl','frozen-yogurt':'Frozen Yogurt','dairy-free':'Dairy-Free'},
+    note: 'The NC601 uses a 24 oz XL tub, dual processing zones, and programs including CreamiFit and Dairy-Free.'
+  },
+  nc300: {
+    name: 'CREAMi Classic', code: 'NC299/NC300/NC301/NC350/NC351', shortCode: 'NC301', capacityOz: 16,
+    container: '16 oz pint', zones: false, support: 'Model-aware support',
+    styles: ['high-protein','regular','sorbet','gelato','milkshake','smoothie-bowl'],
+    programs: ['Ice Cream','Lite Ice Cream','Sorbet','Gelato','Milkshake','Smoothie Bowl','Mix-In'],
+    programMap: {'high-protein':'Lite Ice Cream',regular:'Ice Cream',sorbet:'Sorbet',gelato:'Gelato',milkshake:'Milkshake','smoothie-bowl':'Smoothie Bowl'},
+    note: 'Classic models use a 16 oz pint and do not have Full, Top, or Bottom zone buttons.'
+  },
+  nc700: {
+    name: 'CREAMi Scoop & Swirl', code: 'NC700/NC701', shortCode: 'NC701', capacityOz: 16,
+    container: '16 oz 2-in-1 pint', zones: false, softServe: true, support: 'Scoop & Swirl support',
+    styles: ['high-protein','regular','sorbet','gelato','milkshake','frozen-yogurt','soft-serve','fruit-whip','frozen-custard'],
+    programs: ['Ice Cream','Lite Ice Cream','Sorbet','Gelato','Milkshake','Mix-In','Soft Serve Ice Cream','Soft Serve Lite Ice Cream','Fruit Whip','Frozen Custard','Frozen Yogurt','CreamiFit'],
+    programMap: {'high-protein':'CreamiFit',regular:'Ice Cream',sorbet:'Sorbet',gelato:'Gelato',milkshake:'Milkshake','frozen-yogurt':'Frozen Yogurt','soft-serve':'Soft Serve Ice Cream','fruit-whip':'Fruit Whip','frozen-custard':'Frozen Custard'},
+    note: 'Choose scoop or soft-serve output deliberately. Soft-serve recipes require the correct dispensing setup.'
+  },
+  breeze: {
+    name: 'CREAMi Breeze', code: 'NC100/NC200 series', shortCode: 'BREEZE', capacityOz: 16,
+    container: '16 oz Breeze pint', zones: false, support: 'Legacy model support',
+    styles: ['high-protein','regular','sorbet','gelato','milkshake','smoothie-bowl'],
+    programs: ['Ice Cream','Lite Ice Cream','Sorbet','Gelato','Milkshake','Smoothie Bowl','Mix-In'],
+    programMap: {'high-protein':'Lite Ice Cream',regular:'Ice Cream',sorbet:'Sorbet',gelato:'Gelato',milkshake:'Milkshake','smoothie-bowl':'Smoothie Bowl'},
+    note: 'Legacy Breeze controls vary. Confirm the exact buttons printed on the machine before processing.'
+  }
+};
+
+const ingredientCatalog = {
+  fairlife: {label:'Fairlife milk', density:1.04, water:.84, fat:.02, sugar:.05, structural:.16, dairy:true, kind:'liquid', defaultUnit:'ml'},
+  whole_milk: {label:'Whole milk', density:1.03, water:.87, fat:.032, sugar:.048, structural:.13, dairy:true, kind:'liquid', defaultUnit:'ml'},
+  skim_milk: {label:'Skim / low-fat milk', density:1.04, water:.9, fat:.003, sugar:.05, structural:.10, dairy:true, kind:'liquid', defaultUnit:'ml'},
+  almond_milk: {label:'Unsweetened almond milk', density:1.0, water:.97, fat:.012, sugar:.005, structural:.03, dairy:false, thin:true, kind:'liquid', defaultUnit:'ml'},
+  oat_milk: {label:'Oat milk', density:1.03, water:.88, fat:.018, sugar:.055, structural:.12, dairy:false, kind:'liquid', defaultUnit:'ml'},
+  water: {label:'Water / cold brew coffee', density:1, water:1, fat:0, sugar:0, structural:0, dairy:false, thin:true, kind:'liquid', defaultUnit:'ml'},
+  juice: {label:'Fruit juice', density:1.05, water:.9, fat:0, sugar:.10, structural:.10, dairy:false, thin:true, fruit:true, kind:'liquid', defaultUnit:'ml'},
+  heavy_cream: {label:'Heavy cream', density:.99, water:.58, fat:.36, sugar:.03, structural:.42, dairy:true, kind:'fat', defaultUnit:'ml'},
+  coconut_cream: {label:'Coconut cream', density:1.0, water:.5, fat:.24, sugar:.04, structural:.5, dairy:false, kind:'fat', defaultUnit:'ml'},
+  greek_yogurt: {label:'Greek yogurt', density:1.04, water:.78, fat:.02, sugar:.04, structural:.22, support:.65, dairy:true, kind:'support', defaultUnit:'g'},
+  cream_cheese: {label:'Cream cheese', density:1.02, water:.55, fat:.33, sugar:.03, structural:.45, support:.65, dairy:true, kind:'support', defaultUnit:'g'},
+  banana: {label:'Banana', density:.94, water:.75, fat:.003, sugar:.12, structural:.25, support:.55, fruit:true, itemGrams:118, kind:'support', defaultUnit:'g'},
+  fruit_puree: {label:'Fruit purée / crushed fruit', density:1.02, water:.82, fat:0, sugar:.10, structural:.18, support:.25, fruit:true, kind:'fruit', defaultUnit:'g'},
+  canned_fruit: {label:'Canned fruit with liquid', density:1.03, water:.78, fat:0, sugar:.16, structural:.22, support:.25, fruit:true, kind:'fruit', defaultUnit:'g'},
+  whey: {label:'Whey protein powder', density:.48, water:.04, fat:.04, sugar:.05, structural:.96, support:.18, proteinPowder:true, scoopGrams:30, precision:true, kind:'protein', defaultUnit:'g'},
+  protein_blend: {label:'Whey-casein protein blend', density:.52, water:.04, fat:.04, sugar:.05, structural:.96, support:.55, proteinPowder:true, casein:true, scoopGrams:30, precision:true, kind:'protein', defaultUnit:'g'},
+  casein: {label:'Casein protein powder', density:.52, water:.04, fat:.02, sugar:.04, structural:.96, support:.85, proteinPowder:true, casein:true, scoopGrams:30, precision:true, kind:'protein', defaultUnit:'g'},
+  plant_protein: {label:'Plant protein powder', density:.48, water:.05, fat:.06, sugar:.04, structural:.95, support:.55, proteinPowder:true, scoopGrams:30, precision:true, kind:'protein', defaultUnit:'g'},
+  pudding: {label:'Instant pudding mix', density:.65, water:.02, fat:.02, sugar:.1, structural:.98, support:1.25, pudding:true, precision:true, kind:'thickener', defaultUnit:'g'},
+  guar: {label:'Guar gum', density:.55, water:0, fat:0, sugar:0, structural:1, support:12, gum:true, precision:true, kind:'thickener', defaultUnit:'g'},
+  xanthan: {label:'Xanthan gum', density:.55, water:0, fat:0, sugar:0, structural:1, support:12, gum:true, precision:true, kind:'thickener', defaultUnit:'g'},
+  sugar: {label:'Granulated sugar', density:.85, water:0, fat:0, sugar:1, structural:1, freezeSupport:1, precision:true, kind:'sweetener', defaultUnit:'g'},
+  allulose: {label:'Allulose', density:.75, water:0, fat:0, sugar:0, structural:1, freezeSupport:1.15, precision:true, kind:'sweetener', defaultUnit:'g'},
+  erythritol: {label:'Erythritol', density:.8, water:0, fat:0, sugar:0, structural:1, freezeSupport:.45, precision:true, kind:'sweetener', defaultUnit:'g'},
+  honey: {label:'Honey', density:1.42, water:.17, fat:0, sugar:.75, structural:.83, freezeSupport:.8, kind:'sweetener', defaultUnit:'tbsp'},
+  maple: {label:'Maple syrup', density:1.33, water:.32, fat:0, sugar:.65, structural:.68, freezeSupport:.68, kind:'sweetener', defaultUnit:'tbsp'},
+  cocoa: {label:'Cocoa powder', density:.48, water:.03, fat:.12, sugar:.02, structural:.97, support:.12, precision:true, kind:'flavor', defaultUnit:'g'},
+  peanut_butter: {label:'Peanut / nut butter', density:1.1, water:.02, fat:.50, sugar:.08, structural:.98, support:.35, kind:'fat', defaultUnit:'tbsp'},
+  vanilla: {label:'Vanilla / flavor extract', density:.9, water:.5, fat:0, sugar:0, structural:.5, alcohol:.35, kind:'flavor', defaultUnit:'tsp'},
+  alcohol: {label:'Alcohol / liqueur', density:.95, water:.55, fat:0, sugar:.15, structural:.45, alcohol:1, kind:'alcohol', defaultUnit:'tbsp'},
+  salt: {label:'Salt', density:1.2, water:0, fat:0, sugar:0, structural:1, precision:true, kind:'flavor', defaultUnit:'tsp'},
+  mixin: {label:'Mix-ins', density:.75, water:.08, fat:.18, sugar:.35, structural:.92, mixin:true, kind:'mixin', defaultUnit:'tbsp'},
+  custom: {label:'Custom ingredient', density:1, water:.5, fat:0, sugar:0, structural:.5, kind:'custom', defaultUnit:'g'}
+};
+
+const unitLabels = {g:'g', oz:'oz', ml:'ml', cup:'cups', tbsp:'tbsp', tsp:'tsp', scoop:'scoops', item:'items'};
+const unitOrder = ['g','oz','ml','cup','tbsp','tsp','scoop','item'];
+
+const ingredientGuide = [
+  {name:'Texture support', text:'A gum or pudding mix is not always required. Traditional bases can work from their existing fat, sugar, and milk solids. Lean, low-sugar, high-water, or protein-heavy bases are more likely to need additional support.'},
+  {name:'Weight versus volume', text:'Grams and ounces are more repeatable. Cups and spoons are convenient, but powder density and packing can change the actual amount.'},
+  ...Object.values(ingredientCatalog).filter(x => x.label !== 'Custom ingredient').map(x => ({name:x.label, text: ingredientDescription(x)}))
+];
+
+function ingredientDescription(item) {
+  if (item.gum) return 'Powerful stabilizer. Measure by weight; small errors can make the pint gummy.';
+  if (item.pudding) return 'Adds starches and emulsifiers that improve body. Too much can become pasty or gummy.';
+  if (item.proteinPowder) return item.casein ? 'Adds protein and strong thickening. High amounts can become dense or chalky.' : 'Adds protein and solids. Whey-heavy formulas often need additional body or freezing-point support.';
+  if (item.kind === 'sweetener') return 'Sweetens or changes freezing behavior. Different sweeteners do not soften a frozen base equally.';
+  if (item.kind === 'liquid' && item.thin) return 'High-water, low-solid base. It is more likely to freeze hard or icy unless the rest of the formula supplies enough solids and freezing-point support.';
+  if (item.kind === 'fat') return 'Adds richness, body, and slower melting. Excessive fat can make the result heavy.';
+  if (item.fruit) return 'Adds water, sugar, fiber, flavor, and variable solids. Fruit type and ripeness change the result.';
+  if (item.support) return 'Adds body and structural support. The effect depends on the amount and the rest of the formula.';
+  return 'Contributes flavor, solids, water, fat, or sweetness depending on the ingredient and amount.';
+}
+
+let currentRoute = 'home';
+let builderStep = 1;
+let latestRecipe = null;
+let currentModelKey = localStorage.getItem('pintLogicModel') || 'nc500';
+if (!modelData[currentModelKey]) currentModelKey = 'nc500';
+
+function getModel() { return modelData[currentModelKey]; }
+function capacityMl() { return getModel().capacityOz * 29.5735; }
+function currentBatchFactor() {
+  const mode = document.getElementById('builderBatchMode')?.value || 'full';
+  return (mode === 'top' || mode === 'bottom') ? .5 : 1;
+}
+function targetCapacityMl() { return capacityMl() * currentBatchFactor(); }
+
+function populateSelect(select, values, labels = {}) {
+  const prior = select.value;
+  select.innerHTML = values.map(value => `<option value="${escapeHtml(value)}">${escapeHtml(labels[value] || value)}</option>`).join('');
+  if (values.includes(prior)) select.value = prior;
+}
+
+function recommendedProgram(style = document.getElementById('builderRecipeStyle')?.value, profile = document.getElementById('targetProfile')?.value, output = document.getElementById('outputMode')?.value) {
+  const model = getModel();
+  if (model.softServe && output === 'softserve') {
+    if (style === 'high-protein' || profile === 'high-protein') return model.programs.includes('CreamiFit') ? 'CreamiFit' : 'Soft Serve Lite Ice Cream';
+    if (profile === 'low-calorie') return 'Soft Serve Lite Ice Cream';
+    if (style === 'fruit-whip') return 'Fruit Whip';
+    if (style === 'frozen-yogurt') return 'Frozen Yogurt';
+    if (style === 'frozen-custard') return 'Frozen Custard';
+    return 'Soft Serve Ice Cream';
+  }
+  if (profile === 'dairy-free' && model.programs.includes('Dairy-Free')) return 'Dairy-Free';
+  return model.programMap[style] || (profile === 'high-protein' ? (model.programs.includes('CreamiFit') ? 'CreamiFit' : 'Lite Ice Cream') : 'Ice Cream');
+}
+
+function applyModel() {
+  const model = getModel();
+  document.getElementById('modelSelect').value = currentModelKey;
+  document.getElementById('modelEyebrow').textContent = `${model.name.toUpperCase()} • ${model.code}`;
+  document.getElementById('modelSummary').textContent = `${model.container} • ${model.zones ? 'Full, Top, and Bottom processing' : 'whole-container processing'}`;
+  document.getElementById('supportBadge').textContent = model.support;
+  document.getElementById('pintModel').textContent = model.shortCode;
+  document.getElementById('settingFeatureText').textContent = model.zones ? 'Program, Full, Top, or Bottom' : 'Choose the correct program';
+  document.getElementById('quickFeatureText').textContent = `${model.shortCode} controls and programs`;
+  document.getElementById('quickModelEyebrow').textContent = `${model.name.toUpperCase()} • ${model.shortCode}`;
+  document.getElementById('builderModelEyebrow').textContent = `${model.name.toUpperCase()} • ${model.shortCode} RECIPE LAB`;
+  document.getElementById('builderModelNote').textContent = model.note;
+
+  populateSelect(document.getElementById('builderRecipeStyle'), model.styles, styleLabels);
+  populateBatchModes();
+  document.getElementById('outputModeField').classList.toggle('hidden', !model.softServe);
+  if (!model.softServe) document.getElementById('outputMode').value = 'scoop';
+
+  populateProgramControls();
+  populateSettingTypes();
+  document.getElementById('portionField').classList.toggle('hidden', !model.zones);
+  if (!model.zones) document.getElementById('portionSelect').value = 'full';
+
+  const leanProgram = model.programMap['high-protein'] || 'Lite Ice Cream';
+  document.getElementById('quickLeanProgram').textContent = leanProgram.toUpperCase();
+  document.getElementById('quickLeanTitle').textContent = leanProgram === 'CreamiFit' ? 'Use for compatible lean, high-protein formulas' : 'Use for leaner or high-protein bases';
+  document.getElementById('quickLeanBody').textContent = leanProgram === 'CreamiFit'
+    ? 'CreamiFit is intended for compatible lower-calorie, high-protein formulas. Use Lite Ice Cream when the formula does not fit that style.'
+    : 'Low-fat milk, protein powder, sugar substitutes, and reduced-calorie recipes commonly fit this program.';
+  document.getElementById('quickZones').classList.toggle('hidden', !model.zones);
+  document.getElementById('quickZonesBody').textContent = `Full processes the entire ${model.container}. Top and Bottom process the corresponding section.`;
+  document.getElementById('quickProgramTitle').textContent = `${model.shortCode} program list`;
+  document.getElementById('modelProgramChips').innerHTML = model.programs.map(p => `<span class="program-chip">${escapeHtml(p)}</span>`).join('');
+
+  latestRecipe = null;
+  document.getElementById('builderResult').classList.add('hidden');
+  document.getElementById('builderForm').classList.remove('hidden');
+  document.querySelector('.progress-wrap').classList.remove('hidden');
+  document.getElementById('settingResult').classList.add('hidden');
+  document.getElementById('fixResult').classList.add('hidden');
+  ensureStarterRows();
+  updateRecipeControls();
+  updateFormulaEverywhere();
+}
+
+function populateBatchModes() {
+  const model = getModel();
+  const modes = model.zones ? ['full','top','bottom','split'] : ['full'];
+  const labels = model.zones
+    ? {full:`Full ${model.container}`,top:'Top half only',bottom:'Bottom half only',split:'Full tub, split into two flavors'}
+    : {full:`Full ${model.container}`};
+  populateSelect(document.getElementById('builderBatchMode'), modes, labels);
+  populateSelect(document.getElementById('builderPortionSelect'), model.zones ? ['Full','Top','Bottom'] : ['Whole container']);
+  document.getElementById('builderPortionField').classList.toggle('hidden', !model.zones);
+}
+
+function populateProgramControls() {
+  const model = getModel();
+  populateSelect(document.getElementById('firstProgramSelect'), model.programs);
+  const recommended = recommendedProgram();
+  if (model.programs.includes(recommended)) document.getElementById('firstProgramSelect').value = recommended;
+  renderProgramRecommendation();
+  renderMachineOptions();
+}
+
+function populateSettingTypes() {
+  const model = getModel();
+  const select = document.getElementById('settingTypeSelect');
+  select.innerHTML = model.styles.map(style => `<option value="${escapeHtml(style)}">${escapeHtml(styleLabels[style])}</option>`).join('');
+}
+
+function renderProgramRecommendation() {
+  const recommended = recommendedProgram();
+  const selected = document.getElementById('firstProgramSelect').value;
+  const differs = selected && selected !== recommended;
+  document.getElementById('programRecommendation').innerHTML = `<strong>Recommended: ${escapeHtml(recommended)}</strong>${differs ? `You selected ${escapeHtml(selected)}. Confirm that the finished formula matches that program.` : 'This is based on the selected model, recipe style, profile, and output format.'}`;
+}
+
+function renderMachineOptions() {
+  const model = getModel();
+  const notes = [];
+  if (model.zones) notes.push('Set Full, Top, or Bottom before selecting the program. The selected section should match the frozen portion being processed.');
+  else notes.push('This model processes the whole container and does not use Deluxe zone controls.');
+  if (model.softServe) notes.push('For a swirl, use the correct soft-serve program and dispensing components. Scoop and soft-serve programs are not interchangeable.');
+  if (model.programs.includes('CreamiFit')) notes.push('CreamiFit is formula-specific. A random low-calorie base is not automatically a CreamiFit formula.');
+  if (currentModelKey === 'breeze') notes.push('Legacy Breeze support is conservative. Verify the printed control panel on the exact machine.');
+  document.getElementById('machineSpecificOptions').innerHTML = notes.map(note => `<div class="machine-option-note">${escapeHtml(note)}</div>`).join('');
+}
+
+document.getElementById('modelSelect').addEventListener('change', event => {
+  currentModelKey = event.target.value;
+  localStorage.setItem('pintLogicModel', currentModelKey);
+  applyModel();
+  if (currentRoute === 'live') startLiveMode();
+});
+
+function routeTo(route) {
+  currentRoute = route;
+  Object.values(screens).forEach(screen => screen.classList.remove('active'));
+  screens[route].classList.add('active');
+  document.querySelectorAll('.bottom-nav button').forEach(btn => btn.classList.toggle('active', btn.dataset.route === route));
+  if (route === 'recipes') renderRecipes();
+  if (route === 'ingredients') renderIngredients('');
+  if (route === 'live') startLiveMode();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+document.addEventListener('click', event => {
+  const routeButton = event.target.closest('[data-route]');
+  if (routeButton) routeTo(routeButton.dataset.route);
+});
+
+document.getElementById('resetAppBtn').addEventListener('click', () => {
+  if (currentRoute === 'builder') resetBuilder();
+  if (currentRoute === 'setting') { document.getElementById('settingForm').reset(); applyModel(); }
+  if (currentRoute === 'fix') { document.getElementById('fixResult').classList.add('hidden'); document.querySelectorAll('#issueGrid button').forEach(b => b.classList.remove('selected')); }
+  if (currentRoute === 'live') startLiveMode();
+});
+
+const builderSteps = [...document.querySelectorAll('.builder-step')];
+const builderNextBtn = document.getElementById('builderNextBtn');
+const builderBackBtn = document.getElementById('builderBackBtn');
+
+function updateBuilderUI() {
+  builderSteps.forEach(step => step.classList.toggle('active', Number(step.dataset.step) === builderStep));
+  const percent = builderStep * 20;
+  document.getElementById('builderProgress').style.width = `${percent}%`;
+  document.getElementById('builderStepLabel').textContent = `Step ${builderStep} of 5`;
+  document.getElementById('builderPercent').textContent = `${percent}%`;
+  builderBackBtn.disabled = builderStep === 1;
+  builderNextBtn.textContent = builderStep === 5 ? 'Create Recipe Plan' : 'Next';
+  if (builderStep === 4) populateProgramControls();
+  if (builderStep === 5) renderBuilderReview();
+  updateFormulaEverywhere();
+}
+
+builderNextBtn.addEventListener('click', () => {
+  if (builderStep < 5) { builderStep += 1; updateBuilderUI(); }
+  else createRecipe();
+});
+builderBackBtn.addEventListener('click', () => { if (builderStep > 1) { builderStep -= 1; updateBuilderUI(); } });
+
+document.getElementById('editBuilderBtn').addEventListener('click', () => {
+  document.getElementById('builderForm').classList.remove('hidden');
+  document.querySelector('.progress-wrap').classList.remove('hidden');
+  document.getElementById('builderResult').classList.add('hidden');
+  builderStep = 5;
+  updateBuilderUI();
+});
+
+function ingredientOptions(selected = '') {
+  return Object.entries(ingredientCatalog).map(([key, item]) => `<option value="${key}" ${key === selected ? 'selected' : ''}>${escapeHtml(item.label)}</option>`).join('');
+}
+function unitOptions(selected = 'g') {
+  return unitOrder.map(unit => `<option value="${unit}" ${unit === selected ? 'selected' : ''}>${unitLabels[unit]}</option>`).join('');
+}
+
+function addIngredientRow(key = 'fairlife', qty = 100, unit = null, customName = '') {
+  const item = ingredientCatalog[key] || ingredientCatalog.custom;
+  const row = document.createElement('div');
+  row.className = 'ingredient-row';
+  row.innerHTML = `
+    <select class="ingredient-select" aria-label="Ingredient">${ingredientOptions(key)}</select>
+    <input class="ingredient-qty" type="number" min="0" step="0.1" value="${Number(qty)}" inputmode="decimal" aria-label="Amount" />
+    <select class="ingredient-unit" aria-label="Unit">${unitOptions(unit || item.defaultUnit || 'g')}</select>
+    <button type="button" class="remove-ingredient" aria-label="Remove ingredient">×</button>
+    <input class="custom-ingredient hidden" type="text" placeholder="Custom ingredient name" value="${escapeHtml(customName)}" />
+  `;
+  row.querySelector('.custom-ingredient').classList.toggle('hidden', key !== 'custom');
+  row.querySelector('.ingredient-select').addEventListener('change', event => {
+    const chosen = ingredientCatalog[event.target.value];
+    const custom = row.querySelector('.custom-ingredient');
+    custom.classList.toggle('hidden', event.target.value !== 'custom');
+    row.querySelector('.ingredient-unit').value = chosen.defaultUnit || 'g';
+    updateFormulaEverywhere();
+  });
+  row.querySelectorAll('input,select').forEach(control => control.addEventListener('input', updateFormulaEverywhere));
+  row.querySelector('.remove-ingredient').addEventListener('click', () => { row.remove(); updateFormulaEverywhere(); });
+  document.getElementById('ingredientRows').appendChild(row);
+  updateFormulaEverywhere();
+}
+
+function getIngredientRows() {
+  return [...document.querySelectorAll('.ingredient-row')].map(row => {
+    const key = row.querySelector('.ingredient-select').value;
+    const customName = row.querySelector('.custom-ingredient').value.trim();
+    return {
+      key,
+      name: key === 'custom' ? (customName || 'Custom ingredient') : ingredientCatalog[key].label,
+      qty: Math.max(0, Number(row.querySelector('.ingredient-qty').value) || 0),
+      unit: row.querySelector('.ingredient-unit').value
+    };
+  }).filter(row => row.qty > 0);
+}
+
+function convertAmount(row) {
+  const item = ingredientCatalog[row.key] || ingredientCatalog.custom;
+  const q = row.qty;
+  let grams = 0, ml = 0;
+  if (row.unit === 'g') { grams = q; ml = grams / item.density; }
+  else if (row.unit === 'oz') { grams = q * 28.3495; ml = grams / item.density; }
+  else if (row.unit === 'ml') { ml = q; grams = ml * item.density; }
+  else if (row.unit === 'cup') { ml = q * 236.588; grams = ml * item.density; }
+  else if (row.unit === 'tbsp') { ml = q * 14.7868; grams = ml * item.density; }
+  else if (row.unit === 'tsp') { ml = q * 4.92892; grams = ml * item.density; }
+  else if (row.unit === 'scoop') { grams = q * (item.scoopGrams || 30); ml = grams / item.density; }
+  else if (row.unit === 'item') { grams = q * (item.itemGrams || 100); ml = grams / item.density; }
+  return {grams, ml, item};
+}
+
+function mixInProjectedMl() {
+  if (!document.getElementById('mixInsPlanned').checked) return 0;
+  return convertAmount({key:'mixin', qty:Number(document.getElementById('mixInQty').value)||0, unit:document.getElementById('mixInUnit').value}).ml;
+}
+
+function analyzeFormula() {
+  const rows = getIngredientRows();
+  const cap = targetCapacityMl();
+  const scale = cap / 473.176;
+  const totals = {grams:0, ml:0, water:0, fat:0, solids:0, freeze:0, support:0, proteinPowder:0, gum:0, pudding:0, alcoholMl:0, fruit:0, dairy:0, thinLiquid:0, casein:0};
+  let precisionByVolume = false;
+  let gumByVolume = false;
+  const names = [];
+
+  rows.forEach(row => {
+    const {grams, ml, item} = convertAmount(row);
+    totals.grams += grams;
+    totals.ml += ml;
+    totals.water += grams * (item.water || 0);
+    totals.fat += grams * (item.fat || 0);
+    totals.solids += grams * (item.structural ?? (1 - (item.water || 0)));
+    totals.freeze += grams * (item.freezeSupport || item.sugar || 0);
+    totals.support += grams * (item.support || 0) / 10;
+    if (item.proteinPowder) totals.proteinPowder += grams;
+    if (item.gum) totals.gum += grams;
+    if (item.pudding) totals.pudding += grams;
+    if (item.alcohol) totals.alcoholMl += ml * item.alcohol;
+    if (item.fruit) totals.fruit += grams;
+    if (item.dairy) totals.dairy += grams;
+    if (item.thin) totals.thinLiquid += grams;
+    if (item.casein) totals.casein += grams;
+    if (item.precision && !['g','oz'].includes(row.unit)) precisionByVolume = true;
+    if (item.gum && !['g','oz'].includes(row.unit)) gumByVolume = true;
+    names.push(row.name);
+  });
+
+  const projectedMl = totals.ml + mixInProjectedMl();
+  const fillPct = cap ? projectedMl / cap * 100 : 0;
+  const waterPct = totals.grams ? totals.water / totals.grams * 100 : 0;
+  const leanFormula = totals.fat < 7 * scale && totals.freeze < 18 * scale;
+  const highProtein = totals.proteinPowder >= 20 * scale;
+  const supportLevel = totals.support >= 1.5 * scale ? 'Strong' : totals.support >= .65 * scale ? 'Moderate' : totals.support > .1 ? 'Light' : 'None';
+  const warnings = [];
+  const profile = document.getElementById('targetProfile').value;
+  const style = document.getElementById('builderRecipeStyle').value;
+
+  if (!rows.length) warnings.push({severity:'danger', title:'No formula entered', text:'Add ingredients before creating the recipe plan.'});
+  if (fillPct > 102) warnings.push({severity:'danger', title:'Estimated overfill', text:`The formula is approximately ${Math.round(fillPct)}% of the selected batch capacity. Reduce the base and stay at or below the MAX FILL line.`});
+  else if (fillPct > 90) warnings.push({severity:'warning', title:'Little room for expansion or mix-ins', text:`Estimated fill is ${Math.round(fillPct)}%. Leave space below the MAX FILL line, especially when mix-ins are planned.`});
+  else if (fillPct > 0 && fillPct < 38) warnings.push({severity:'warning', title:'Very small batch', text:'The amount is well below the selected container size. Processing may be less consistent than a normally filled container.'});
+
+  if (waterPct > 84 && totals.solids < 48 * scale) warnings.push({severity:'warning', title:'High-water, low-solid formula', text:'This is likely to freeze hard or icy. Add appropriate milk solids, fruit solids, sugar/freezing-point support, fat, yogurt, pudding mix, or a carefully measured stabilizer.'});
+
+  if ((profile === 'high-protein' || style === 'high-protein' || highProtein) && leanFormula && totals.support < .65 * scale) {
+    warnings.push({severity:'warning', title:'High-protein base has little texture support', text:'This combination is likely to spin powdery, dry, or chalky. Consider yogurt, pudding mix, a whey-casein blend, cream cheese, banana, allulose, or a very small weighed amount of gum.'});
+  }
+
+  if ((profile === 'low-calorie' || profile === 'high-protein') && totals.thinLiquid > totals.grams * .45 && totals.support < .65 * scale) {
+    warnings.push({severity:'warning', title:'Thin liquid base without a binder or thickener', text:'A gum is not automatically required, but this lean, high-water formula has no clear source of body. Add a suitable texture-support ingredient or expect an icy/powdery first spin.'});
+  }
+
+  if (style === 'regular' && totals.fat < 8 * scale && totals.freeze < 22 * scale) warnings.push({severity:'warning', title:'Traditional ice cream formula is unusually lean', text:'Ice Cream may not be the best first program. Add appropriate fat/sugar/solids or consider Lite Ice Cream.'});
+  if (style === 'sorbet' && totals.fruit < 120 * scale && !names.includes('Fruit juice')) warnings.push({severity:'warning', title:'Sorbet has little fruit', text:'Confirm that enough fruit or juice is present to define the base and supply flavor and solids.'});
+  if (profile === 'dairy-free' && totals.dairy > 1) warnings.push({severity:'warning', title:'Dairy-free profile contains dairy', text:'Replace the dairy ingredients or change the selected nutrition profile.'});
+
+  if (totals.gum > 1.0 * scale) warnings.push({severity:totals.gum > 1.5 * scale ? 'danger' : 'warning', title:'Gum amount may be excessive', text:`Estimated gum is ${totals.gum.toFixed(1)} g. Too much guar or xanthan can make the pint gummy, slick, or elastic.`});
+  if (gumByVolume) warnings.push({severity:'danger', title:'Weigh gums instead of using spoons', text:'Guar and xanthan are too potent for reliable cup or spoon measurement. Use grams and a scale capable of small increments.'});
+  if (totals.pudding > 15 * scale) warnings.push({severity:'warning', title:'Pudding mix may be too high', text:'Large amounts can create a pasty or gummy result, especially with casein or gums.'});
+  if (totals.gum > 0 && totals.pudding > 0 && totals.casein > 18 * scale) warnings.push({severity:'warning', title:'Multiple strong thickeners stacked', text:'Gum, pudding mix, and casein can compound. Reduce at least one if the target is not intentionally very dense.'});
+  if (totals.proteinPowder > 45 * scale) warnings.push({severity:'warning', title:'Protein powder is high for the batch', text:`Estimated protein powder is ${Math.round(totals.proteinPowder)} g. High amounts can become chalky, dry, or dense.`});
+  if (totals.alcoholMl > 30 * scale) warnings.push({severity:'danger', title:'Alcohol may prevent a firm freeze', text:'The estimated alcohol level is high enough to risk a soft or unprocessable base. Reduce it substantially.'});
+  else if (totals.alcoholMl > 15 * scale) warnings.push({severity:'warning', title:'Alcohol will soften the freeze', text:'The base may remain too soft or become soupy after processing. Use a conservative amount.'});
+  if (precisionByVolume) warnings.push({severity:'info', title:'Volume conversion is approximate', text:'For protein powder, pudding mix, cocoa, sweeteners, and other powders, grams are more repeatable than cups or spoons.'});
+  if (Number(document.getElementById('freezeHours').value) < 12) warnings.push({severity:'warning', title:'Freeze time may be too short', text:'The app expects a fully frozen base. Shorter freeze times increase the chance of an uneven or overly soft result.'});
+  if (!document.getElementById('builderTopFlat').checked) warnings.push({severity:'danger', title:'Do not process a raised frozen hump', text:'Flatten the frozen surface before installing the container.'});
+
+  if (!warnings.some(w => w.severity === 'danger' || w.severity === 'warning') && rows.length) {
+    warnings.unshift({severity:'info', title:'No major formula conflict detected', text:'This is a screening result, not a guarantee. Ingredient brands, freezer temperature, and actual fill level can still change the texture.'});
+  }
+
+  const risk = warnings.some(w => w.severity === 'danger') ? 'danger' : warnings.some(w => w.severity === 'warning') ? 'warning' : 'safe';
+  return {rows, totals, projectedMl, cap, fillPct, waterPct, supportLevel, warnings, risk};
+}
+
+function watchHtml(analysis) {
+  const riskLabel = analysis.risk === 'danger' ? 'High risk' : analysis.risk === 'warning' ? 'Needs attention' : 'Formula looks reasonable';
+  return `
+    <div class="watch-header"><h3>Formula Watch</h3><span class="risk-pill ${analysis.risk}">${riskLabel}</span></div>
+    <div class="formula-metrics">
+      <div class="formula-metric"><span>Estimated fill</span><strong>${Math.round(analysis.projectedMl)} / ${Math.round(analysis.cap)} ml</strong></div>
+      <div class="formula-metric"><span>Formula mass</span><strong>${Math.round(analysis.totals.grams)} g</strong></div>
+      <div class="formula-metric"><span>Texture support</span><strong>${analysis.supportLevel}</strong></div>
+      <div class="formula-metric"><span>Water estimate</span><strong>${Math.round(analysis.waterPct || 0)}%</strong></div>
+    </div>
+    <div class="warning-list">${analysis.warnings.map(w => `<div class="formula-warning ${w.severity}"><strong>${escapeHtml(w.title)}</strong>${escapeHtml(w.text)}</div>`).join('')}</div>
+  `;
+}
+
+function updateFormulaEverywhere() {
+  const analysis = analyzeFormula();
+  ['formulaWatchStep2','formulaWatchStep3','formulaWatchStep4','formulaWatchStep5'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.className = `formula-watch watch-${analysis.risk}`;
+    el.innerHTML = watchHtml(analysis);
+  });
+  if (builderStep === 5) renderBuilderReview(analysis);
+  renderProgramRecommendation();
+}
+
+function templateRows(style, profile) {
+  const factor = getModel().capacityOz === 24 ? 1.5 : 1;
+  const scale = n => Math.round(n * factor * 10) / 10;
+  if (style === 'regular') return [['whole_milk',scale(280),'ml'],['heavy_cream',scale(60),'ml'],['sugar',scale(55),'g'],['vanilla',1,'tsp']];
+  if (style === 'sorbet') return [['fruit_puree',scale(280),'g'],['sugar',scale(40),'g'],['juice',scale(45),'ml']];
+  if (style === 'gelato') return [['whole_milk',scale(285),'ml'],['heavy_cream',scale(35),'ml'],['sugar',scale(50),'g'],['pudding',scale(4),'g']];
+  if (style === 'frozen-yogurt') return [['greek_yogurt',scale(250),'g'],['whole_milk',scale(75),'ml'],['sugar',scale(38),'g']];
+  if (style === 'smoothie-bowl') return [['fruit_puree',scale(220),'g'],['banana',scale(65),'g'],['almond_milk',scale(80),'ml']];
+  if (style === 'dairy-free' || profile === 'dairy-free') return [['oat_milk',scale(290),'ml'],['coconut_cream',scale(35),'ml'],['allulose',scale(25),'g'],['pudding',scale(6),'g']];
+  if (style === 'fruit-whip') return [['fruit_puree',scale(300),'g'],['allulose',scale(25),'g']];
+  if (style === 'frozen-custard') return [['whole_milk',scale(250),'ml'],['heavy_cream',scale(70),'ml'],['sugar',scale(50),'g'],['pudding',scale(5),'g']];
+  if (style === 'soft-serve') return [['whole_milk',scale(285),'ml'],['sugar',scale(45),'g'],['pudding',scale(6),'g']];
+  if (['milkshake','frappe','creami-ccino','frozen-drink','slushi','italian-ice'].includes(style)) return [['whole_milk',scale(260),'ml'],['sugar',scale(40),'g'],['pudding',scale(4),'g']];
+  return [['fairlife',scale(300),'ml'],['protein_blend',scale(30),'g'],['allulose',scale(22),'g'],['pudding',scale(6),'g']];
+}
+
+function loadStarterTemplate() {
+  document.getElementById('ingredientRows').innerHTML = '';
+  templateRows(document.getElementById('builderRecipeStyle').value, document.getElementById('targetProfile').value).forEach(args => addIngredientRow(...args));
+  updateFormulaEverywhere();
+}
+
+function ensureStarterRows() {
+  if (!document.querySelector('.ingredient-row')) loadStarterTemplate();
+}
+
+document.getElementById('loadTemplateBtn').addEventListener('click', loadStarterTemplate);
+document.getElementById('addIngredientBtn').addEventListener('click', () => addIngredientRow('custom', 1, 'g'));
+document.getElementById('clearIngredientsBtn').addEventListener('click', () => { document.getElementById('ingredientRows').innerHTML = ''; updateFormulaEverywhere(); });
+
+const quickAdds = ['fairlife','whole_milk','almond_milk','protein_blend','whey','greek_yogurt','pudding','guar','allulose','sugar','banana','fruit_puree','heavy_cream','mixin'];
+document.getElementById('quickAddIngredients').innerHTML = quickAdds.map(key => `<button type="button" data-add-ingredient="${key}">${escapeHtml(ingredientCatalog[key].label)}</button>`).join('');
+document.getElementById('quickAddIngredients').addEventListener('click', event => {
+  const btn = event.target.closest('[data-add-ingredient]');
+  if (!btn) return;
+  const key = btn.dataset.addIngredient;
+  const factor = getModel().capacityOz === 24 ? 1.5 : 1;
+  const defaults = {fairlife:[300,'ml'],whole_milk:[300,'ml'],almond_milk:[300,'ml'],protein_blend:[30,'g'],whey:[30,'g'],greek_yogurt:[80,'g'],pudding:[6,'g'],guar:[.5,'g'],allulose:[22,'g'],sugar:[45,'g'],banana:[65,'g'],fruit_puree:[200,'g'],heavy_cream:[45,'ml'],mixin:[2,'tbsp']};
+  const [q,u] = defaults[key];
+  addIngredientRow(key, Math.round(q * factor * 10)/10, u);
+});
+
+function updateRecipeControls() {
+  const style = document.getElementById('builderRecipeStyle').value;
+  const model = getModel();
+  if (model.softServe && style === 'soft-serve') document.getElementById('outputMode').value = 'softserve';
+  const recommended = recommendedProgram();
+  if (model.programs.includes(recommended)) document.getElementById('firstProgramSelect').value = recommended;
+  renderProgramRecommendation();
+  updateFormulaEverywhere();
+}
+
+['builderRecipeStyle','targetProfile','builderBatchMode','outputMode','textureTarget','sweetnessTarget','freezeHours','builderTopFlat','mixInQty','mixInUnit','processingStage','respinPlan','builderPortionSelect'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateRecipeControls);
+});
+document.getElementById('firstProgramSelect').addEventListener('change', () => { renderProgramRecommendation(); updateFormulaEverywhere(); });
+document.getElementById('mixInsPlanned').addEventListener('change', event => {
+  document.getElementById('mixInAmountRow').classList.toggle('hidden', !event.target.checked);
+  updateFormulaEverywhere();
+});
+
+function renderBuilderReview(analysis = analyzeFormula()) {
+  const rows = analysis.rows;
+  const model = getModel();
+  const style = document.getElementById('builderRecipeStyle').value;
+  const program = document.getElementById('firstProgramSelect').value || recommendedProgram();
+  const section = model.zones ? document.getElementById('builderPortionSelect').value : 'Whole container';
+  document.getElementById('builderReview').innerHTML = `
+    <div class="review-grid">
+      <div class="review-block"><span>Machine</span><p>${escapeHtml(model.name)} ${escapeHtml(model.shortCode)} • ${escapeHtml(model.container)}</p></div>
+      <div class="review-block"><span>Recipe goal</span><p>${escapeHtml(styleLabels[style])} • ${escapeHtml(document.getElementById('targetProfile').selectedOptions[0].text)}</p></div>
+      <div class="review-block"><span>Ingredients</span>${rows.length ? `<ul>${rows.map(row => `<li>${formatAmount(row)} ${escapeHtml(row.name)}</li>`).join('')}</ul>` : '<p>No ingredients entered.</p>'}</div>
+      <div class="review-block"><span>Spin plan</span><p>${escapeHtml(section)} + ${escapeHtml(program)}<br>${escapeHtml(document.getElementById('respinPlan').selectedOptions[0].text)}</p></div>
+      <div class="review-block"><span>Freeze and finish</span><p>${escapeHtml(document.getElementById('freezeHours').value)} hours • ${escapeHtml(document.getElementById('textureTarget').selectedOptions[0].text)}${document.getElementById('mixInsPlanned').checked ? ' • Mix-ins planned' : ''}</p></div>
+    </div>
+  `;
+}
+
+function formatAmount(row) {
+  const qty = Number(row.qty);
+  const displayed = Number.isInteger(qty) ? qty : Math.round(qty * 100) / 100;
+  return `${displayed} ${unitLabels[row.unit]}`;
+}
+
+function createRecipe() {
+  const analysis = analyzeFormula();
+  const model = getModel();
+  const style = document.getElementById('builderRecipeStyle').value;
+  const title = document.getElementById('recipeName').value.trim() || `${styleLabels[style]} Recipe`;
+  const program = document.getElementById('firstProgramSelect').value || recommendedProgram();
+  const portion = model.zones ? document.getElementById('builderPortionSelect').value : 'Whole container';
+  latestRecipe = {
+    id: Date.now(), title, modelKey: currentModelKey, modelName: `${model.name} ${model.shortCode}`,
+    style, profile: document.getElementById('targetProfile').value, program, portion,
+    ingredients: analysis.rows, texture: document.getElementById('textureTarget').value,
+    sweetness: document.getElementById('sweetnessTarget').value, freezeHours: Number(document.getElementById('freezeHours').value),
+    mixIns: document.getElementById('mixInsPlanned').checked, risk: analysis.risk,
+    warnings: analysis.warnings, createdAt: new Date().toISOString()
+  };
+  document.getElementById('builderResultTitle').textContent = title;
+  document.getElementById('builderRecipeDetails').innerHTML = `
+    <span class="model-chip">${escapeHtml(latestRecipe.modelName)}</span>
+    <div class="result-section"><strong>Formula</strong><ul>${analysis.rows.map(row => `<li>${formatAmount(row)} ${escapeHtml(row.name)}</li>`).join('')}</ul></div>
+    <div class="result-section"><strong>First spin</strong><p>${escapeHtml(portion)} + <b>${escapeHtml(program)}</b></p><p>${escapeHtml(document.getElementById('respinPlan').selectedOptions[0].text)}</p></div>
+    <div class="result-section"><strong>Freeze</strong><p>Freeze flat until fully solid. Planned time: ${escapeHtml(document.getElementById('freezeHours').value)} hours.</p></div>
+    <div class="result-section"><strong>Formula risk</strong><p><span class="recipe-risk ${analysis.risk}">${analysis.risk}</span></p>${analysis.warnings.map(w => `<div class="formula-warning ${w.severity}"><strong>${escapeHtml(w.title)}</strong>${escapeHtml(w.text)}</div>`).join('')}</div>
+  `;
+  document.getElementById('builderForm').classList.add('hidden');
+  document.querySelector('.progress-wrap').classList.add('hidden');
+  document.getElementById('builderResult').classList.remove('hidden');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+document.getElementById('saveRecipeBtn').addEventListener('click', () => {
+  if (!latestRecipe) return;
+  const recipes = JSON.parse(localStorage.getItem('creamiRecipes') || '[]');
+  recipes.unshift(latestRecipe);
+  localStorage.setItem('creamiRecipes', JSON.stringify(recipes));
+  document.getElementById('saveRecipeBtn').textContent = 'Saved';
+  setTimeout(() => document.getElementById('saveRecipeBtn').textContent = 'Save Recipe', 1200);
+});
+
+function resetBuilder() {
+  document.getElementById('builderForm').reset();
+  document.getElementById('ingredientRows').innerHTML = '';
+  builderStep = 1;
+  latestRecipe = null;
+  document.getElementById('builderForm').classList.remove('hidden');
+  document.querySelector('.progress-wrap').classList.remove('hidden');
+  document.getElementById('builderResult').classList.add('hidden');
+  applyModel();
+  loadStarterTemplate();
+  updateBuilderUI();
+}
+
+// Setting assistant
+function settingRecommendation(style, stage, portion) {
+  const model = getModel();
+  let program = model.programMap[style] || 'Ice Cream';
+  if (stage === 'respin') program = 'Re-Spin';
+  if (stage === 'mixins') program = 'Mix-In';
+  if (stage === 'leftovers' && style === 'high-protein') program = model.programs.includes('CreamiFit') ? 'CreamiFit' : 'Lite Ice Cream';
+  const portionLabel = model.zones ? ({full:'Full',top:'Top',bottom:'Bottom'}[portion] || 'Full') : 'Whole container';
+  return {program, portionLabel};
+}
+
+document.getElementById('settingForm').addEventListener('submit', event => {
+  event.preventDefault();
+  const form = new FormData(event.target);
+  const style = form.get('type');
+  const stage = form.get('stage');
+  const frozen = form.get('frozen') === 'on';
+  const flat = form.get('flat') === 'on';
+  const {program, portionLabel} = settingRecommendation(style, stage, form.get('portion'));
+  const result = document.getElementById('settingResult');
+  if (!frozen) result.innerHTML = `<div class="result-badge">DO NOT PROCESS YET</div><h3>Freeze the base completely</h3><div class="danger-box">A partially frozen base can process poorly. Wait until it is fully solid.</div>`;
+  else if (!flat) result.innerHTML = `<div class="result-badge">FIX BEFORE SPINNING</div><h3>Flatten the frozen surface</h3><div class="danger-box">Do not process a raised frozen hump.</div>`;
+  else result.innerHTML = `<div class="result-badge">USE THIS SETTING</div><h3>${escapeHtml(portionLabel)} + ${escapeHtml(program)}</h3><span class="model-chip">${escapeHtml(getModel().name)} ${escapeHtml(getModel().shortCode)}</span><div class="result-section"><strong>Next step</strong><p>${stage === 'respin' ? 'Re-Spin once without liquid first. Add a small amount only if it remains dry.' : stage === 'mixins' ? 'Create a center hole, add mix-ins, and run Mix-In once.' : 'Inspect after the first cycle before deciding on a Re-Spin.'}</p></div>`;
+  result.classList.remove('hidden');
+});
+
+const issueAdvice = {
+  powdery:{title:'Powdery or crumbly',now:'Run Re-Spin once without adding liquid. If it remains dry, add a small amount of liquid and re-spin again.',next:'Increase appropriate solids or freezing-point support. Lean bases may benefit from yogurt, pudding mix, allulose, a protein blend, or a small weighed amount of gum.'},
+  icy:{title:'Icy texture',now:'Re-spin once. A small amount of liquid may help if the pint is also dry.',next:'Increase appropriate sugar/freezing-point support, milk or fruit solids, fat, or stabilizer.'},
+  soupy:{title:'Soupy or melted',now:'Stop processing. Smooth the surface, refreeze completely, and process again later.',next:'Reduce alcohol or other strong freezing-point depressants. Avoid repeated cycles after the pint is already soft.'},
+  gummy:{title:'Gummy texture',now:'There is no reliable immediate fix. Let it soften slightly and eat it as-is.',next:'Reduce gums, pudding mix, casein-heavy powder, or stacked thickeners.'},
+  chalky:{title:'Chalky protein texture',now:'A small amount of milk followed by Re-Spin may improve it.',next:'Use less powder, switch to a blend, or add yogurt, milk solids, freezing-point support, or a small amount of fat.'},
+  dense:{title:'Too dense',now:'Re-spin once. Add a small splash of liquid only if it is also dry.',next:'Reduce casein, yogurt, banana, pudding mix, or gums.'},
+  fluffy:{title:'Too fluffy',now:'Compact it with a spoon and let it sit briefly.',next:'Reduce repeated Re-Spins and avoid overprocessing.'},
+  mixins:{title:'Mix-ins were pulverized',now:'Fold in additional pieces by hand.',next:'Use larger, firmer pieces and run Mix-In only once.'},
+  noise:{title:'Machine bouncing or moving',now:'Stop. Confirm the container, outer bowl, lid, and paddle are installed correctly, and verify that the frozen surface is flat.',next:'Do not continue if unusual movement persists.'}
+};
+
+document.getElementById('issueGrid').addEventListener('click', event => {
+  const button = event.target.closest('button[data-issue]'); if (!button) return;
+  document.querySelectorAll('#issueGrid button').forEach(b => b.classList.remove('selected')); button.classList.add('selected');
+  let advice;
+  if (button.dataset.issue === 'bottom') advice = getModel().zones
+    ? {title:'Bottom still frozen',now:'Select Bottom and run the appropriate recipe program for the remaining lower section.',next:'Match the zone selector to the frozen section that remains.'}
+    : {title:'Bottom still frozen',now:'This model has no Bottom zone. Level the remainder and use Re-Spin, or thaw enough to remix and refreeze flat.',next:'Do not apply Deluxe Full/Top/Bottom instructions to a whole-container model.'};
+  else advice = issueAdvice[button.dataset.issue];
+  const result = document.getElementById('fixResult');
+  result.innerHTML = `<div class="result-badge">TROUBLESHOOTING</div><h3>${escapeHtml(advice.title)}</h3><span class="model-chip">${escapeHtml(getModel().name)} ${escapeHtml(getModel().shortCode)}</span><div class="result-section"><strong>Fix it now</strong><p>${escapeHtml(advice.now)}</p></div><div class="result-section"><strong>Change next time</strong><p>${escapeHtml(advice.next)}</p></div>`;
+  result.classList.remove('hidden'); result.scrollIntoView({behavior:'smooth', block:'start'});
+});
+
+// Live assistant
+function startLiveMode() { showLiveStep('start'); }
+function liveStyleOptions(portion) {
+  const model = getModel();
+  return {number:model.zones?3:2,title:'What kind of recipe is it?',body:model.zones?`Section selected: ${portion}.`:`Selected machine: ${model.name} ${model.shortCode}.`,options:model.styles.map((style,index)=>({label:styleLabels[style],next:`result|${portion}|${model.programMap[style] || 'Ice Cream'}`,primary:index===0}))};
+}
+function showLiveStep(key) {
+  const model = getModel(); let step;
+  if (key === 'start') step={number:1,title:'Check the frozen surface',body:`Make sure the ${model.container} is fully frozen and flat.`,options:[{label:'Frozen and flat',next:model.zones?'portion':'type|Whole container',primary:true},{label:'There is a hump',next:'flatten'}]};
+  else if (key === 'flatten') step={number:1,title:'Flatten it first',body:'Scrape or level the raised frozen surface before processing.',options:[{label:'It is flat now',next:model.zones?'portion':'type|Whole container',primary:true}]};
+  else if (key === 'portion') step={number:2,title:'Which section?',body:'Match the selected zone to the frozen portion.',options:[{label:'Entire tub',next:'type|Full'},{label:'Top section',next:'type|Top'},{label:'Bottom section',next:'type|Bottom'}]};
+  else if (key.startsWith('type|')) step=liveStyleOptions(key.split('|')[1]);
+  else if (key.startsWith('result|')) { const [,portion,program]=key.split('|'); step={number:model.zones?4:3,title:model.zones?`${portion} + ${program}`:program,body:'Run once, then inspect the texture.',options:[{label:'Texture is good',next:'done',primary:true},{label:'Powdery or crumbly',next:'respin'},{label:'Adding mix-ins',next:'mixins'}]}; }
+  else if (key === 'respin') step={number:model.zones?5:4,title:'Re-Spin without liquid',body:'Run Re-Spin once. Add a small amount of liquid only if it remains dry.',options:[{label:'Done',next:'done',primary:true}]};
+  else if (key === 'mixins') step={number:model.zones?5:4,title:'Prepare for Mix-In',body:'Create a center hole, add mix-ins, and run Mix-In once.',options:[{label:'Done',next:'done',primary:true}]};
+  else step={number:'✓',title:'Recipe complete',body:'Save the model, formula, program, Re-Spins, liquid added, and final texture.',options:[{label:'View saved recipes',next:'recipes',primary:true},{label:'Start another',next:'start'}]};
+  document.getElementById('liveNumber').textContent=step.number; document.getElementById('liveTitle').textContent=step.title; document.getElementById('liveBody').textContent=step.body;
+  const options=document.getElementById('liveOptions'); options.innerHTML=''; step.options.forEach(option=>{const btn=document.createElement('button');btn.textContent=option.label;if(option.primary)btn.classList.add('primary');btn.addEventListener('click',()=>option.next==='recipes'?routeTo('recipes'):showLiveStep(option.next));options.appendChild(btn);});
+}
+document.getElementById('restartLiveBtn').addEventListener('click', startLiveMode);
+
+function renderRecipes() {
+  const list=document.getElementById('recipeList'); const recipes=JSON.parse(localStorage.getItem('creamiRecipes')||'[]');
+  if(!recipes.length){list.innerHTML='<div class="empty-state">No recipes saved yet.<br>Build a recipe and save the plan.</div>';return;}
+  list.innerHTML=recipes.map(recipe=>`<article class="recipe-item" data-recipe-id="${recipe.id}"><span class="model-chip">${escapeHtml(recipe.modelName||'Model not recorded')}</span><span class="recipe-risk ${recipe.risk||'warning'}">${escapeHtml(recipe.risk||'unrated')}</span><h3>${escapeHtml(recipe.title)}</h3><div class="recipe-meta">${escapeHtml(recipe.program||'Program not recorded')} • ${escapeHtml(recipe.portion||'Whole container')}<br>${recipe.ingredients?.length||0} ingredients • ${escapeHtml(recipe.texture||'texture not recorded')}</div><div class="recipe-actions"><button data-action="duplicate">Duplicate</button><button data-action="delete">Delete</button></div></article>`).join('');
+}
+document.getElementById('recipeList').addEventListener('click', event=>{const btn=event.target.closest('[data-action]');if(!btn)return;const card=btn.closest('[data-recipe-id]');const id=Number(card.dataset.recipeId);let recipes=JSON.parse(localStorage.getItem('creamiRecipes')||'[]');if(btn.dataset.action==='delete')recipes=recipes.filter(r=>r.id!==id);else{const original=recipes.find(r=>r.id===id);if(original)recipes.unshift({...original,id:Date.now(),title:`${original.title} Copy`,createdAt:new Date().toISOString()});}localStorage.setItem('creamiRecipes',JSON.stringify(recipes));renderRecipes();});
+
+function renderIngredients(query) {
+  const matches=ingredientGuide.filter(item=>item.name.toLowerCase().includes(query.toLowerCase())||item.text.toLowerCase().includes(query.toLowerCase()));
+  document.getElementById('ingredientList').innerHTML=matches.map(item=>`<article class="info-item"><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.text)}</p></article>`).join('');
+}
+document.getElementById('ingredientSearch').addEventListener('input',event=>renderIngredients(event.target.value));
+
+function escapeHtml(value=''){return String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');}
+
+updateBuilderUI();
+renderIngredients('');
+applyModel();
+
+</script>
+</body>
+</html>
