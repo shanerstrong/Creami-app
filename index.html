@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f5f4f0">
+<title>CreamyTuner</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#f5f4f0;--panel:#ffffff;--panel2:#f0efeb;--panel3:#e9e7e1;--text:#191a1c;--muted:#6d7075;
+  --line:#d9d7d0;--accent:#33363a;--accentText:#fff;--good:#217a52;--warn:#a46200;--bad:#b42318;
+  --goodBg:#e9f6ef;--warnBg:#fff4dc;--badBg:#feefed;--shadow:0 10px 30px rgba(25,26,28,.08)
+}
+html[data-theme="dark"]{
+  --bg:#151617;--panel:#1f2022;--panel2:#282a2d;--panel3:#303236;--text:#f5f5f2;--muted:#a7a9ad;
+  --line:#3a3d41;--accent:#f1f0eb;--accentText:#171819;--good:#6ad49b;--warn:#f4b557;--bad:#ff8179;
+  --goodBg:#173629;--warnBg:#3a2e17;--badBg:#3e211f;--shadow:none
+}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{padding-bottom:env(safe-area-inset-bottom)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{width:100%;max-width:720px;margin:0 auto;min-height:100vh;background:var(--bg)}
+.topbar{height:64px;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 92%,transparent);position:sticky;top:0;z-index:30;backdrop-filter:blur(14px)}
+.brand{display:flex;align-items:center;gap:10px}.brand-mark{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;background:var(--text);color:var(--bg);font-weight:900}.brand strong{display:block}.brand small{display:block;color:var(--muted);font-size:.72rem;margin-top:1px}
+.icon-btn,.back-btn{width:42px;height:42px;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:14px;font-weight:800}
+.back-btn{font-size:1.35rem}.top-actions{display:flex;gap:8px}.back-btn.hidden{visibility:hidden}
+main{padding:18px 16px 100px}.page{display:none}.page.active{display:block;animation:enterNext .22s ease}.page.enter-back{animation:enterBack .22s ease}
+@keyframes enterNext{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+@keyframes enterBack{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
+.page-title{font-size:1.65rem;margin:0 0 8px;letter-spacing:-.035em}.page-sub{color:var(--muted);line-height:1.5;margin:0 0 20px}.kicker{display:block;color:var(--muted);font-size:.68rem;font-weight:900;letter-spacing:.13em;text-transform:uppercase;margin-bottom:7px}
+.card{border:1px solid var(--line);border-radius:20px;background:var(--panel);padding:16px;box-shadow:var(--shadow)}
+.welcome{min-height:calc(100vh - 182px);display:flex;flex-direction:column;justify-content:space-between}.welcome-art{height:250px;border-radius:28px;background:var(--panel2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:14px;overflow:hidden;margin-bottom:24px}.art-tile{width:86px;height:124px;border-radius:24px;background:var(--panel);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}.art-tile:nth-child(2){transform:translateY(-18px)}.art-tile span{font-size:2.7rem}.art-tile small{color:var(--muted);font-weight:750}
+.welcome h1{font-size:2.25rem;line-height:1.02;margin:0 0 13px;letter-spacing:-.055em}.welcome p{color:var(--muted);line-height:1.55;margin:0}.welcome-steps{display:grid;gap:10px;margin:22px 0}.welcome-step{display:flex;gap:12px;align-items:center}.step-dot{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--text);color:var(--bg);font-size:.78rem;font-weight:900}.welcome-step span:last-child{color:var(--muted);font-size:.92rem}.welcome-step b{color:var(--text)}
+.primary,.secondary,.ghost,.danger{min-height:50px;border-radius:15px;padding:12px 16px;font-weight:850;border:1px solid var(--line)}.primary{background:var(--accent);color:var(--accentText);border-color:var(--accent)}.secondary{background:var(--panel);color:var(--text)}.ghost{background:transparent;color:var(--muted)}.danger{background:var(--badBg);color:var(--bad);border-color:color-mix(in srgb,var(--bad) 25%,var(--line))}.full{width:100%}.text-link{border:0;background:transparent;color:var(--muted);font-weight:800;padding:12px}
+.action-stack{display:grid;gap:12px}.start-card{width:100%;display:grid;grid-template-columns:62px 1fr 20px;align-items:center;gap:13px;padding:14px;border:1px solid var(--line);border-radius:18px;background:var(--panel);color:var(--text);text-align:left}.start-card .visual{width:62px;height:62px;border-radius:16px;background:var(--panel2);display:grid;place-items:center;font-size:2rem}.start-card strong{display:block;font-size:1rem}.start-card small{display:block;color:var(--muted);line-height:1.4;margin-top:3px}.start-card .arrow{color:var(--muted);font-size:1.25rem}
+.input-wrap{position:relative}.input-wrap input{padding-right:48px}.clear-input{position:absolute;right:7px;top:50%;transform:translateY(-50%);width:35px;height:35px;border:0;border-radius:10px;background:var(--panel2);color:var(--muted);font-size:1.1rem}
+.field{display:grid;gap:7px;margin-bottom:15px;font-size:.82rem;font-weight:800;color:var(--muted)}input,select,textarea{width:100%;min-height:50px;border:1px solid var(--line);border-radius:14px;background:var(--panel2);color:var(--text);padding:0 13px;outline:none}textarea{padding:12px;min-height:92px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:var(--text)}
+.idea-example-row{display:flex;gap:8px;overflow:auto;padding-bottom:6px;margin:12px 0}.idea-chip{white-space:nowrap;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--text);padding:9px 12px;font-size:.78rem;font-weight:800}.idea-results{display:grid;gap:12px;margin-top:16px}.idea-card{display:grid;grid-template-columns:76px 1fr;gap:13px;align-items:center;border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:10px;text-align:left;color:var(--text)}.idea-art{height:76px;border-radius:14px;background:var(--panel2);display:grid;place-items:center;font-size:2.3rem}.idea-card small{color:var(--muted);display:block;margin-top:4px;line-height:1.35}
+.progress{display:flex;align-items:center;gap:8px;margin:0 0 18px}.progress span{height:6px;flex:1;border-radius:99px;background:var(--line)}.progress span.done{background:var(--text)}
+.choice-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.food-card{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:0;color:var(--text);text-align:left}.food-card.selected{border:2px solid var(--text)}.food-card.selected::after{content:'✓';position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--text);color:var(--bg);font-weight:900}.food-image{height:112px;background:var(--panel2);display:grid;place-items:center;font-size:3.4rem;border-bottom:1px solid var(--line)}.food-copy{padding:12px}.food-copy strong{display:block;line-height:1.2}.food-copy small{display:block;color:var(--muted);font-size:.73rem;margin-top:5px;line-height:1.35}.food-card.recommended .food-copy::before{content:'Recommended';display:inline-block;color:var(--good);font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:22px 0 10px}.section-head h3{margin:0;font-size:1rem}.section-head small{color:var(--muted)}
+.selected-list{display:grid;gap:10px}.selected-row{border:1px solid var(--line);border-radius:17px;background:var(--panel);padding:12px}.selected-top{display:flex;align-items:center;gap:10px}.mini-art{width:46px;height:46px;border-radius:12px;background:var(--panel2);display:grid;place-items:center;font-size:1.45rem}.selected-title{flex:1}.selected-title strong{display:block}.selected-title small{display:block;color:var(--muted);font-size:.7rem;margin-top:3px}.remove-btn{width:34px;height:34px;border:0;border-radius:10px;background:var(--panel2);color:var(--bad);font-weight:900}.amount-row{display:grid;grid-template-columns:42px 1fr 112px 42px;gap:7px;margin-top:11px}.amount-row button{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:12px;font-size:1.1rem;font-weight:900}.amount-row input,.amount-row select{min-height:43px;padding:0 9px}.gram-note{color:var(--muted);font-size:.7rem;margin-top:7px}.quick-fractions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.quick-fractions button{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:10px;padding:6px 9px;font-size:.7rem;font-weight:800}
+.category-tabs{display:flex;gap:8px;overflow:auto;padding-bottom:8px;margin-bottom:10px}.category-tab{white-space:nowrap;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:999px;padding:9px 12px;font-size:.75rem;font-weight:850}.category-tab.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+.status-card{border-radius:18px;padding:14px;border:1px solid var(--line);margin-bottom:14px}.status-card.bad{background:var(--badBg);border-color:color-mix(in srgb,var(--bad) 28%,var(--line));color:var(--bad)}.status-card.warn{background:var(--warnBg);border-color:color-mix(in srgb,var(--warn) 28%,var(--line));color:var(--warn)}.status-card.good{background:var(--goodBg);border-color:color-mix(in srgb,var(--good) 28%,var(--line));color:var(--good)}.status-card strong{display:block;margin-bottom:5px}.status-card p{margin:0;line-height:1.42;font-size:.83rem}.fill-wrap{margin-top:12px}.fill-label{display:flex;justify-content:space-between;color:var(--muted);font-size:.72rem;font-weight:800;margin-bottom:7px}.fill-track{height:10px;border-radius:99px;background:var(--panel3);overflow:hidden}.fill-track span{display:block;height:100%;border-radius:99px;background:var(--good)}.fill-track span.warn{background:var(--warn)}.fill-track span.bad{background:var(--bad)}
+.suggestion-list{display:grid;gap:10px}.suggestion{display:grid;grid-template-columns:50px 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:16px;padding:10px;background:var(--panel)}.suggestion .mini-art{width:50px;height:50px}.suggestion small{display:block;color:var(--muted);font-size:.7rem;line-height:1.35;margin-top:3px}.suggestion button{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:11px;padding:8px 10px;font-weight:850}
+.method-grid{display:grid;gap:12px}.method-card{width:100%;display:grid;grid-template-columns:64px 1fr;gap:13px;align-items:center;border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:12px;text-align:left;color:var(--text)}.method-card.selected{border:2px solid var(--text)}.method-card.recommended::after{content:'Recommended';grid-column:2;color:var(--good);font-size:.66rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em}.method-art{width:64px;height:64px;border-radius:16px;background:var(--panel2);display:grid;place-items:center;font-size:2rem}.method-card small{display:block;color:var(--muted);line-height:1.4;margin-top:3px}.mix-note{margin-top:15px;padding:13px;border-radius:15px;background:var(--panel2);color:var(--muted);font-size:.82rem;line-height:1.5}
+.review-image{width:100%;aspect-ratio:16/10;border-radius:20px;background:var(--panel2);display:grid;place-items:center;overflow:hidden;border:1px solid var(--line);margin-bottom:16px}.review-image img{width:100%;height:100%;object-fit:cover}.review-image .placeholder{font-size:4rem}.upload-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.file-label{position:relative;overflow:hidden;text-align:center;display:grid;place-items:center}.file-label input{position:absolute;inset:0;opacity:0;cursor:pointer}.summary-list{display:grid;gap:10px}.summary-item{display:flex;justify-content:space-between;gap:14px;padding-bottom:10px;border-bottom:1px solid var(--line)}.summary-item:last-child{border-bottom:0;padding-bottom:0}.summary-item span{color:var(--muted);text-align:right}.ingredient-summary{display:flex;gap:8px;align-items:center;margin-top:9px}.ingredient-summary .mini-art{width:38px;height:38px;font-size:1.2rem}.ingredient-summary span{color:var(--muted);font-size:.8rem}.button-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.sticky-next{position:sticky;bottom:12px;margin-top:20px;padding:10px;border:1px solid var(--line);border-radius:18px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(14px);z-index:15}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(720px,100%);display:none;grid-template-columns:repeat(4,1fr);padding:8px 8px calc(8px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(16px);z-index:40}.bottom-nav.visible{display:grid}.bottom-nav button{border:0;background:transparent;color:var(--muted);display:grid;justify-items:center;gap:3px;font-size:.64rem;font-weight:800;padding:5px}.bottom-nav button span{font-size:1.2rem}.bottom-nav button.active{color:var(--text)}
+.recipe-list,.shopping-list{display:grid;gap:12px}.recipe-card{display:grid;grid-template-columns:86px 1fr;gap:12px;border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:10px}.recipe-thumb{height:86px;border-radius:14px;background:var(--panel2);display:grid;place-items:center;font-size:2.4rem;overflow:hidden}.recipe-thumb img{width:100%;height:100%;object-fit:cover}.recipe-card h3{font-size:1rem;margin:2px 0 5px}.recipe-card p{color:var(--muted);font-size:.75rem;margin:0;line-height:1.4}.recipe-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.recipe-actions button{border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text);padding:7px 9px;font-size:.7rem;font-weight:800}.empty{border:1px dashed var(--line);border-radius:18px;padding:30px 18px;text-align:center;color:var(--muted)}.shopping-item{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:15px;background:var(--panel);padding:12px}.shopping-item input{width:20px;height:20px;min-height:0}.shopping-item.checked span{text-decoration:line-through;color:var(--muted)}
+.settings-group{display:grid;gap:10px}.theme-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px}.theme-choice button{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:15px;padding:14px;font-weight:850}.theme-choice button.active{border:2px solid var(--text)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:80;padding:10px}.modal.open{display:flex}.modal-card{width:min(700px,100%);max-height:90vh;overflow:auto;background:var(--bg);border-radius:24px 24px 14px 14px;padding:18px;border:1px solid var(--line)}.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.modal-head h3{margin:0}.close-modal{width:38px;height:38px;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--text)}
+.toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,20px);background:var(--text);color:var(--bg);padding:11px 15px;border-radius:12px;font-weight:800;opacity:0;pointer-events:none;transition:.2s;z-index:100}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:430px){main{padding-left:13px;padding-right:13px}.choice-grid{gap:9px}.food-image{height:94px;font-size:2.9rem}.food-copy{padding:10px}.food-copy strong{font-size:.88rem}.amount-row{grid-template-columns:40px 1fr 96px 40px}.welcome-art{height:215px}.art-tile{width:74px;height:108px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar" id="topbar">
+  <button class="back-btn hidden" id="backBtn" aria-label="Go back">‹</button>
+  <div class="brand"><div class="brand-mark">CT</div><div><strong>CreamyTuner</strong><small id="headerSub">Build better pints</small></div></div>
+  <div class="top-actions"><button class="icon-btn" id="settingsBtn" aria-label="Settings">⚙</button></div>
+</header>
+<main>
+<section class="page active" id="welcomePage" data-title="Welcome">
+  <div class="welcome">
+    <div>
+      <div class="welcome-art" aria-label="Milk, frozen dessert, and fruit illustrations">
+        <div class="art-tile"><span>🥛</span><small>Choose a base</small></div>
+        <div class="art-tile"><span>🍨</span><small>Tune texture</small></div>
+        <div class="art-tile"><span>🍓</span><small>Add flavor</small></div>
+      </div>
+      <span class="kicker">Welcome to CreamyTuner</span>
+      <h1>Build a recipe that is more likely to work.</h1>
+      <p>Choose your machine, add ingredients, balance the formula, and get clear mixing and spin instructions.</p>
+      <div class="welcome-steps">
+        <div class="welcome-step"><span class="step-dot">1</span><span><b>Pick a direction.</b> Start from scratch or generate an idea.</span></div>
+        <div class="welcome-step"><span class="step-dot">2</span><span><b>Build the formula.</b> Add multiple liquids, flavors, proteins, and texture support.</span></div>
+        <div class="welcome-step"><span class="step-dot">3</span><span><b>Follow the plan.</b> Mix, freeze, spin, and save your result.</span></div>
+      </div>
+    </div>
+    <div>
+      <button class="primary full" id="getStartedBtn">Get started</button>
+      <button class="text-link full" id="welcomeRecipesBtn">Open my recipes</button>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="startPage" data-title="Start a recipe">
+  <span class="kicker">Step 1</span><h2 class="page-title">How do you want to start?</h2><p class="page-sub">Pick one option. You can change anything later.</p>
+  <div class="action-stack">
+    <button class="start-card" data-start="idea"><span class="visual">✨</span><span><strong>Help generate a recipe idea</strong><small>Describe a flavor, nutrition goal, or ingredients you have.</small></span><span class="arrow">›</span></button>
+    <button class="start-card" data-start="templates"><span class="visual">🍨</span><span><strong>Use a starting recipe</strong><small>Load a simple template and adjust it.</small></span><span class="arrow">›</span></button>
+    <button class="start-card" data-start="scratch"><span class="visual">＋</span><span><strong>Start from scratch</strong><small>Choose every ingredient yourself.</small></span><span class="arrow">›</span></button>
+  </div>
+</section>
+
+<section class="page" id="ideaPage" data-title="Recipe idea">
+  <span class="kicker">Recipe helper</span><h2 class="page-title">What sounds good?</h2><p class="page-sub">The idea generator changes both the recipe name and the actual ingredient list.</p>
+  <label class="field">Describe it<input id="ideaPrompt" placeholder="Pistachio rose gelato, chocolate protein, mango sorbet..."></label>
+  <div class="idea-example-row">
+    <button class="idea-chip" data-prompt="Pistachio rose gelato">Pistachio rose</button>
+    <button class="idea-chip" data-prompt="Chocolate peanut butter protein">Chocolate PB protein</button>
+    <button class="idea-chip" data-prompt="Strawberry cheesecake">Strawberry cheesecake</button>
+    <button class="idea-chip" data-prompt="Mango coconut sorbet">Mango coconut</button>
+  </div>
+  <div class="button-row"><button class="secondary" id="surpriseBtn">Surprise me</button><button class="primary" id="generateIdeasBtn">Generate ideas</button></div>
+  <div class="idea-results" id="ideaResults"></div>
+</section>
+
+<section class="page" id="templatesPage" data-title="Starting recipes">
+  <span class="kicker">Starting recipes</span><h2 class="page-title">Choose a starting point</h2><p class="page-sub">The picture stays separate from the recipe text so everything remains readable.</p>
+  <div class="choice-grid" id="templateGrid"></div>
+</section>
+
+<section class="page" id="setupPage" data-title="Recipe setup">
+  <div class="progress"><span class="done"></span><span></span><span></span><span></span><span></span></div>
+  <span class="kicker">Step 2</span><h2 class="page-title">Name and setup</h2><p class="page-sub">Set the recipe style and machine before choosing ingredients.</p>
+  <div class="card">
+    <label class="field">Recipe name<div class="input-wrap"><input id="recipeName" placeholder="Untitled recipe"><button class="clear-input" id="clearNameBtn" type="button" aria-label="Clear recipe name">×</button></div></label>
+    <label class="field">Recipe style<select id="recipeStyle">
+      <option value="protein">High protein</option><option value="traditional">Traditional ice cream</option><option value="gelato">Gelato</option><option value="sorbet">Sorbet</option><option value="yogurt">Frozen yogurt</option><option value="smoothie">Smoothie bowl</option>
+    </select></label>
+    <label class="field">Machine<select id="machineSelect">
+      <option value="deluxe">CREAMi Deluxe NC500/NC501</option><option value="classic">CREAMi Classic NC299/NC300/NC301</option><option value="xl">CREAMi XL NC600/NC601</option><option value="swirl">CREAMi Scoop & Swirl NC700/NC701</option>
+    </select></label>
+  </div>
+  <div class="sticky-next"><button class="primary full" id="setupNextBtn">Choose my base</button></div>
+</section>
+
+<section class="page" id="basePage" data-title="Choose a base">
+  <div class="progress"><span class="done"></span><span class="done"></span><span></span><span></span><span></span></div>
+  <span class="kicker">Step 3</span><h2 class="page-title">Choose one or more base liquids</h2><p class="page-sub">Mixing milks and liquids is allowed. Tap each one you want, then adjust the amount below.</p>
+  <div class="choice-grid" id="baseGrid"></div>
+  <div class="section-head"><h3>Selected bases</h3><small id="baseCount">0 selected</small></div>
+  <div class="selected-list" id="baseSelected"></div>
+  <div class="sticky-next"><button class="primary full" id="baseNextBtn">Continue to ingredients</button></div>
+</section>
+
+<section class="page" id="ingredientsPage" data-title="Add ingredients">
+  <div class="progress"><span class="done"></span><span class="done"></span><span class="done"></span><span></span><span></span></div>
+  <span class="kicker">Step 4</span><h2 class="page-title">Add the main ingredients</h2><p class="page-sub">Choose flavors, fruit, protein, sweeteners, and creamy ingredients. You can add more than one.</p>
+  <div class="category-tabs" id="categoryTabs"></div>
+  <div class="choice-grid" id="ingredientGrid"></div>
+  <button class="secondary full" id="customIngredientBtn" style="margin-top:12px">＋ Add my own ingredient</button>
+  <div class="section-head"><h3>Your ingredients</h3><small id="ingredientCount">0 selected</small></div>
+  <div class="selected-list" id="ingredientSelected"></div>
+  <div class="sticky-next"><button class="primary full" id="ingredientsNextBtn">Check the formula</button></div>
+</section>
+
+<section class="page" id="supportPage" data-title="Balance the formula">
+  <div class="progress"><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span><span></span></div>
+  <span class="kicker">Step 5</span><h2 class="page-title">Balance the formula</h2><p class="page-sub">CreamyTuner checks fill level, iciness risk, protein dryness, and excessive thickness.</p>
+  <div id="formulaStatus"></div>
+  <div class="card" style="margin-bottom:14px"><div class="fill-label"><span>Estimated container fill</span><strong id="fillText">0%</strong></div><div class="fill-track"><span id="fillBar"></span></div></div>
+  <div class="section-head"><h3>Smart suggestions</h3><small>Add only what the formula needs</small></div>
+  <div class="suggestion-list" id="suggestionList"></div>
+  <div class="section-head"><h3>Texture helpers</h3><small>Use gums sparingly</small></div>
+  <div class="choice-grid" id="supportGrid"></div>
+  <div class="section-head"><h3>Selected helpers</h3><small id="supportCount">0 selected</small></div>
+  <div class="selected-list" id="supportSelected"></div>
+  <div class="sticky-next"><button class="primary full" id="supportNextBtn">Choose mix-ins</button></div>
+</section>
+
+<section class="page" id="mixinsPage" data-title="Mix-ins">
+  <span class="kicker">Optional</span><h2 class="page-title">Add mix-ins?</h2><p class="page-sub">These are normally added after the first spin using Mix-In or folded in by hand.</p>
+  <div class="choice-grid" id="mixinGrid"></div>
+  <div class="section-head"><h3>Selected mix-ins</h3><small id="mixinCount">0 selected</small></div>
+  <div class="selected-list" id="mixinSelected"></div>
+  <div class="sticky-next"><button class="primary full" id="mixinsNextBtn">Continue to mixing</button></div>
+</section>
+
+<section class="page" id="mixingPage" data-title="Mix the base">
+  <div class="progress"><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span></div>
+  <span class="kicker">Before freezing</span><h2 class="page-title">Mix the base properly</h2><p class="page-sub">Choose how you will fully combine the recipe before it goes into the freezer.</p>
+  <div class="method-grid" id="methodGrid"></div>
+  <div class="mix-note" id="mixingNote"></div>
+  <div class="sticky-next"><button class="primary full" id="mixingNextBtn">Review my recipe</button></div>
+</section>
+
+<section class="page" id="reviewPage" data-title="Review recipe">
+  <span class="kicker">Final review</span><h2 class="page-title" id="reviewTitle">Your recipe</h2><p class="page-sub">Confirm the ingredients, mixing method, and recommended spin plan.</p>
+  <div class="review-image" id="reviewImage"><div class="placeholder" id="reviewPlaceholder">🍨</div><img id="reviewPhoto" alt="Recipe image" hidden></div>
+  <div class="upload-row"><label class="secondary file-label">Upload photo<input id="photoInput" type="file" accept="image/*"></label><button class="secondary" id="generateCoverBtn">Generate cover</button></div>
+  <div class="card" style="margin-top:14px"><div class="summary-list" id="reviewMeta"></div></div>
+  <div class="card" style="margin-top:14px"><h3 style="margin-top:0">Ingredients</h3><div id="reviewIngredients"></div></div>
+  <div id="reviewWarnings" style="margin-top:14px"></div>
+  <div class="button-row"><button class="secondary" id="addShoppingBtn">Add to Shopping List</button><button class="primary" id="saveRecipeBtn">Save recipe</button></div>
+  <button class="ghost full" id="editRecipeBtn" style="margin-top:8px">Go back and edit</button>
+</section>
+
+<section class="page" id="recipesPage" data-title="My recipes">
+  <span class="kicker">Saved</span><h2 class="page-title">My recipes</h2><p class="page-sub">Load a recipe to edit it or add its ingredients to your shopping list.</p>
+  <div class="recipe-list" id="recipeList"></div>
+</section>
+
+<section class="page" id="shoppingPage" data-title="Shopping List">
+  <span class="kicker">Checklist</span><h2 class="page-title">Shopping List</h2><p class="page-sub">Ingredients added from your current or saved recipes.</p>
+  <div class="shopping-list" id="shoppingList"></div>
+  <button class="danger full" id="clearShoppingBtn" style="margin-top:14px">Clear Shopping List</button>
+</section>
+
+<section class="page" id="settingsPage" data-title="Settings">
+  <span class="kicker">Preferences</span><h2 class="page-title">Settings</h2><p class="page-sub">CreamyTuner starts in light mode. Dark mode is optional.</p>
+  <div class="card settings-group">
+    <strong>Appearance</strong>
+    <div class="theme-choice"><button id="lightThemeBtn">☀ Light</button><button id="darkThemeBtn">☾ Dark</button></div>
+  </div>
+</section>
+</main>
+<nav class="bottom-nav" id="bottomNav">
+  <button data-nav="welcome"><span>⌂</span>Home</button>
+  <button data-nav="recipes"><span>◇</span>Recipes</button>
+  <button data-nav="shopping"><span>✓</span>Shopping List</button>
+  <button data-nav="settings"><span>⚙</span>Settings</button>
+</nav>
+</div>
+
+<div class="modal" id="customModal"><div class="modal-card"><div class="modal-head"><h3>Add your own ingredient</h3><button class="close-modal" data-close-modal>×</button></div>
+  <label class="field">Ingredient name<input id="customName" placeholder="Example: ricotta cheese"></label>
+  <label class="field">Category<select id="customCategory"><option value="flavor">Flavor</option><option value="fruit">Fruit</option><option value="protein">Protein</option><option value="creamy">Creamy ingredient</option><option value="sweetener">Sweetener</option><option value="support">Texture helper</option><option value="mixin">Mix-in</option></select></label>
+  <label class="field">Starting amount<input id="customAmount" type="number" min="0" step="0.1" value="1"></label>
+  <label class="field">Unit<select id="customUnit"><option>tbsp</option><option>tsp</option><option>cup</option><option>g</option><option>oz</option><option>item</option></select></label>
+  <button class="primary full" id="saveCustomBtn">Add ingredient</button>
+</div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const MODEL={deluxe:{name:'CREAMi Deluxe',capacity:709,portion:'Full / Top / Bottom'},classic:{name:'CREAMi Classic',capacity:473,portion:'Full pint'},xl:{name:'CREAMi XL',capacity:709,portion:'Full / Top / Bottom'},swirl:{name:'CREAMi Scoop & Swirl',capacity:473,portion:'Scoop or soft serve'}};
+const CAT_NAMES={protein:'Protein',fruit:'Fruit',flavor:'Flavor',creamy:'Creamy',sweetener:'Sweetener'};
+const ingredients={
+  uf0:{name:'Ultra-filtered milk 0%',category:'base',icon:'🥛',amount:1,unit:'cup',grams:245,density:1.03,water:.88,protein:.055,fat:0,sugar:.025,support:.08,thickness:0,note:'High protein and almost no fat. Often needs body or softness support.'},
+  uf2:{name:'Ultra-filtered milk 2%',category:'base',icon:'🥛',amount:1,unit:'cup',grams:245,density:1.03,water:.86,protein:.055,fat:.02,sugar:.025,support:.12,thickness:0,note:'High protein with moderate fat.'},
+  uf4:{name:'Ultra-filtered milk 4%',category:'base',icon:'🥛',amount:1,unit:'cup',grams:245,density:1.03,water:.84,protein:.052,fat:.04,sugar:.025,support:.18,thickness:0,note:'Richer ultra-filtered milk with more built-in creaminess.'},
+  whole:{name:'Whole milk',category:'base',icon:'🥛',amount:1,unit:'cup',grams:245,density:1.03,water:.87,protein:.033,fat:.033,sugar:.05,support:.14,thickness:0,note:'Balanced traditional dairy base.'},
+  skim:{name:'Skim milk',category:'base',icon:'🥛',amount:1,unit:'cup',grams:245,density:1.03,water:.91,protein:.034,fat:0,sugar:.05,support:.05,thickness:0,note:'Lean and more prone to iciness.'},
+  almond:{name:'Unsweetened almond milk',category:'base',icon:'🌰',amount:1,unit:'cup',grams:240,density:1,water:.97,protein:.005,fat:.01,sugar:.002,support:.02,thickness:0,note:'Very low solids. Usually needs added body.'},
+  oat:{name:'Oat milk',category:'base',icon:'🌾',amount:1,unit:'cup',grams:240,density:1,water:.89,protein:.01,fat:.02,sugar:.055,support:.09,thickness:0,note:'Adds carbohydrate and body.'},
+  coconutDrink:{name:'Coconut milk beverage',category:'base',icon:'🥥',amount:1,unit:'cup',grams:240,density:1,water:.95,protein:.003,fat:.02,sugar:.01,support:.05,thickness:0,note:'Light coconut flavor; still relatively low in solids.'},
+  cannedCoconut:{name:'Canned coconut milk',category:'base',icon:'🥥',amount:.5,unit:'cup',grams:120,density:1,water:.68,protein:.02,fat:.20,sugar:.02,support:.35,thickness:.15,note:'Rich, fatty, and useful for dairy-free creaminess.'},
+  halfhalf:{name:'Half-and-half',category:'base',icon:'🫗',amount:.5,unit:'cup',grams:120,density:1,water:.80,protein:.03,fat:.11,sugar:.04,support:.28,thickness:.06,note:'Adds fat and richness.'},
+  coffee:{name:'Coffee or cold brew',category:'base',icon:'☕',amount:.5,unit:'cup',grams:120,density:1,water:.99,protein:0,fat:0,sugar:0,support:0,thickness:0,note:'Adds flavor but almost no solids.'},
+  proteinShake:{name:'Ready-to-drink protein shake',category:'base',icon:'🧋',amount:1,unit:'cup',grams:240,density:1.02,water:.86,protein:.06,fat:.015,sugar:.02,support:.1,thickness:.03,note:'Convenient protein base; formula depends on brand.'},
+  whey:{name:'Whey protein powder',category:'protein',icon:'💪',amount:1,unit:'scoop',grams:30,density:.55,water:.04,protein:.75,fat:.05,sugar:.05,support:.05,thickness:.12,note:'Raises protein but can become chalky or dry.'},
+  casein:{name:'Casein or protein blend',category:'protein',icon:'🥄',amount:.75,unit:'scoop',grams:25,density:.55,water:.04,protein:.72,fat:.04,sugar:.05,support:.22,thickness:.35,note:'Thicker than whey and easier to overdo.'},
+  greek:{name:'Greek yogurt',category:'creamy',icon:'🥣',amount:.25,unit:'cup',grams:60,density:1.05,water:.80,protein:.10,fat:.02,sugar:.04,support:.28,thickness:.28,note:'Adds body, protein, and tang.'},
+  cottage:{name:'Cottage cheese',category:'creamy',icon:'🥣',amount:.5,unit:'cup',grams:110,density:1.05,water:.78,protein:.12,fat:.04,sugar:.03,support:.32,thickness:.30,note:'Blend completely for a smooth texture.'},
+  creamCheese:{name:'Cream cheese',category:'creamy',icon:'🧀',amount:2,unit:'tbsp',grams:28,density:1,water:.55,protein:.06,fat:.33,sugar:.03,support:.30,thickness:.32,note:'Adds richness and emulsification.'},
+  pistachio:{name:'Pistachio butter or paste',category:'creamy',icon:'🟢',amount:3,unit:'tbsp',grams:48,density:1,water:.04,protein:.20,fat:.50,sugar:.08,support:.33,thickness:.28,note:'Strong flavor, fat, and solids.'},
+  peanut:{name:'Peanut butter',category:'creamy',icon:'🥜',amount:2,unit:'tbsp',grams:32,density:1,water:.02,protein:.24,fat:.50,sugar:.08,support:.28,thickness:.26,note:'Adds fat, protein, and strong flavor.'},
+  pbpowder:{name:'Powdered peanut butter',category:'protein',icon:'🥜',amount:2,unit:'tbsp',grams:16,density:.55,water:.04,protein:.45,fat:.12,sugar:.10,support:.10,thickness:.20,note:'Adds flavor and protein but can dry the base.'},
+  strawberry:{name:'Strawberries',category:'fruit',icon:'🍓',amount:1,unit:'cup',grams:150,density:.65,water:.91,protein:.007,fat:.003,sugar:.05,support:.10,thickness:.08,note:'High water fruit; blend well.'},
+  banana:{name:'Banana',category:'fruit',icon:'🍌',amount:1,unit:'item',grams:115,density:.95,water:.75,protein:.01,fat:.003,sugar:.12,support:.34,thickness:.38,note:'Adds sweetness, body, and density.'},
+  mango:{name:'Mango',category:'fruit',icon:'🥭',amount:1,unit:'cup',grams:165,density:.7,water:.83,protein:.008,fat:.004,sugar:.14,support:.22,thickness:.20,note:'Sweet fruit with useful solids.'},
+  pineapple:{name:'Pineapple',category:'fruit',icon:'🍍',amount:1,unit:'cup',grams:165,density:.7,water:.86,protein:.005,fat:.002,sugar:.10,support:.13,thickness:.08,note:'Bright and juicy; can be icy alone.'},
+  cocoa:{name:'Cocoa powder',category:'flavor',icon:'🍫',amount:2,unit:'tbsp',grams:12,density:.45,water:.03,protein:.20,fat:.14,sugar:.01,support:.12,thickness:.18,note:'Deep chocolate flavor; can dry the base.'},
+  vanilla:{name:'Vanilla extract',category:'flavor',icon:'🌼',amount:1,unit:'tsp',grams:4,density:.9,water:.55,protein:0,fat:0,sugar:.02,support:0,thickness:0,note:'General flavor enhancer.'},
+  rose:{name:'Rose water',category:'flavor',icon:'🌹',amount:1,unit:'tsp',grams:5,density:1,water:.98,protein:0,fat:0,sugar:0,support:0,thickness:0,note:'Use lightly; it can become perfumey.'},
+  cinnamon:{name:'Cinnamon',category:'flavor',icon:'🟤',amount:.5,unit:'tsp',grams:1.3,density:.55,water:.1,protein:.04,fat:.01,sugar:.02,support:.02,thickness:.03,note:'Warm spice.'},
+  sugar:{name:'Sugar',category:'sweetener',icon:'🍚',amount:.25,unit:'cup',grams:50,density:.85,water:0,protein:0,fat:0,sugar:1,support:.32,thickness:0,note:'Sweetens and softens freezing.'},
+  allulose:{name:'Allulose',category:'sweetener',icon:'✨',amount:3,unit:'tbsp',grams:36,density:.8,water:0,protein:0,fat:0,sugar:.95,support:.38,thickness:0,note:'Strong freezing-point support with less perceived sweetness.'},
+  maple:{name:'Maple syrup',category:'sweetener',icon:'🍁',amount:2,unit:'tbsp',grams:40,density:1.33,water:.32,protein:0,fat:0,sugar:.66,support:.25,thickness:.04,note:'Adds sweetness and maple flavor.'},
+  pudding:{name:'Instant pudding mix',category:'support',icon:'📦',amount:1,unit:'tbsp',grams:8,density:.55,water:.02,protein:.02,fat:.02,sugar:.15,support:.42,thickness:.45,note:'Adds starch and emulsifiers. Too much becomes pasty.'},
+  guar:{name:'Guar gum',category:'support',icon:'🧪',amount:.25,unit:'tsp',grams:.8,density:.5,water:0,protein:0,fat:0,sugar:0,support:.55,thickness:.75,note:'Powerful thickener. Usually 1/8–1/4 tsp is enough.'},
+  xanthan:{name:'Xanthan gum',category:'support',icon:'🧪',amount:.125,unit:'tsp',grams:.4,density:.5,water:0,protein:0,fat:0,sugar:0,support:.5,thickness:.85,note:'Very easy to overuse; high amounts can become gummy.'},
+  milkPowder:{name:'Nonfat milk powder',category:'support',icon:'🥛',amount:2,unit:'tbsp',grams:16,density:.55,water:.04,protein:.35,fat:.01,sugar:.50,support:.36,thickness:.18,note:'Adds dairy solids without much liquid.'},
+  cookies:{name:'Cookie pieces',category:'mixin',icon:'🍪',amount:.25,unit:'cup',grams:30,density:.55,water:.03,protein:.05,fat:.18,sugar:.35,support:0,thickness:0,note:'Add after the first spin.'},
+  chips:{name:'Chocolate chips',category:'mixin',icon:'🍫',amount:.25,unit:'cup',grams:42,density:.7,water:.01,protein:.05,fat:.28,sugar:.50,support:0,thickness:0,note:'Use Mix-In once or fold in by hand.'},
+  nuts:{name:'Chopped nuts',category:'mixin',icon:'🌰',amount:.25,unit:'cup',grams:30,density:.55,water:.03,protein:.18,fat:.50,sugar:.04,support:0,thickness:0,note:'Add after the first spin.'},
+  brownie:{name:'Brownie pieces',category:'mixin',icon:'🟫',amount:.25,unit:'cup',grams:45,density:.65,water:.15,protein:.05,fat:.15,sugar:.40,support:0,thickness:0,note:'Soft pieces may break down in Mix-In.'}
+};
+const templates=[
+ {id:'protein-choc',name:'Chocolate Protein Pint',icon:'🍫',style:'protein',base:['uf0'],items:['whey','cocoa','allulose','greek','vanilla'],mixins:[]},
+ {id:'straw-cheese',name:'Strawberry Cheesecake',icon:'🍓',style:'traditional',base:['whole'],items:['strawberry','creamCheese','sugar','vanilla'],mixins:['cookies']},
+ {id:'mango-coco',name:'Mango Coconut Sorbet',icon:'🥭',style:'sorbet',base:['coconutDrink'],items:['mango','pineapple','allulose'],mixins:[]},
+ {id:'pistachio-rose',name:'Pistachio Rose Gelato',icon:'🌹',style:'gelato',base:['whole','halfhalf'],items:['pistachio','sugar','rose','vanilla'],mixins:['nuts']},
+ {id:'pb-banana',name:'Peanut Butter Banana',icon:'🥜',style:'protein',base:['uf2'],items:['banana','pbpowder','whey','allulose'],mixins:['chips']},
+ {id:'coffee',name:'Coffee Cream',icon:'☕',style:'traditional',base:['whole','coffee'],items:['sugar','vanilla','creamCheese'],mixins:['chips']}
+];
+const state={name:'',style:'protein',machine:'deluxe',selected:[],method:'',photo:'',cover:'',currentCategory:'protein'};
+function storedCustomIngredients(){try{return JSON.parse(storageGet('creamytunerGuidedCustomIngredients','{}'))}catch{return {}}}
+Object.assign(ingredients,storedCustomIngredients());
+function persistCustomIngredients(){const custom={};Object.keys(ingredients).filter(k=>k.startsWith('custom_')).forEach(k=>custom[k]=ingredients[k]);storageSet('creamytunerGuidedCustomIngredients',JSON.stringify(custom))}
+const pageMap={welcome:'welcomePage',start:'startPage',idea:'ideaPage',templates:'templatesPage',setup:'setupPage',base:'basePage',ingredients:'ingredientsPage',support:'supportPage',mixins:'mixinsPage',mixing:'mixingPage',review:'reviewPage',recipes:'recipesPage',shopping:'shoppingPage',settings:'settingsPage'};
+const wizardPages=new Set(['start','idea','templates','setup','base','ingredients','support','mixins','mixing','review']);
+let currentPage='welcome', navStack=[];
+
+function storageGet(k,fallback=''){try{return localStorage.getItem(k)??fallback}catch{return fallback}}
+function storageSet(k,v){try{localStorage.setItem(k,v)}catch{}}
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
+function esc(v=''){return String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+
+function showPage(page,{back=false,push=true}={}){
+  if(!pageMap[page]) return;
+  if(push && currentPage!==page) navStack.push(currentPage);
+  $$('.page').forEach(p=>{p.classList.remove('active','enter-back')});
+  const el=$('#'+pageMap[page]);el.classList.add('active');if(back)el.classList.add('enter-back');
+  currentPage=page;
+  $('#headerSub').textContent=el.dataset.title||'CreamyTuner';
+  $('#backBtn').classList.toggle('hidden',page==='welcome');
+  $('#bottomNav').classList.toggle('visible',!wizardPages.has(page) && page!=='welcome');
+  $$('#bottomNav button').forEach(b=>b.classList.toggle('active',b.dataset.nav===page));
+  if(page==='base')renderBase();
+  if(page==='ingredients')renderIngredients();
+  if(page==='support')renderSupport();
+  if(page==='mixins')renderMixins();
+  if(page==='mixing')renderMixing();
+  if(page==='review')renderReview();
+  if(page==='recipes')renderRecipes();
+  if(page==='shopping')renderShopping();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function goBack(){const page=navStack.pop()||'welcome';showPage(page,{back:true,push:false})}
+$('#backBtn').addEventListener('click',goBack);
+$('#settingsBtn').addEventListener('click',()=>showPage('settings'));
+$$('#bottomNav button').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.nav)));
+
+function resetRecipe(){Object.assign(state,{name:'',style:'protein',machine:'deluxe',selected:[],method:'',photo:'',cover:'',currentCategory:'protein'});syncSetup()}
+function syncSetup(){ $('#recipeName').value=state.name;$('#recipeStyle').value=state.style;$('#machineSelect').value=state.machine; }
+function addIngredient(key,override={}){if(state.selected.some(x=>x.key===key))return;const d=ingredients[key];if(!d)return;state.selected.push({key,amount:override.amount??d.amount,unit:override.unit??d.unit,grams:override.grams??d.grams});}
+function removeIngredient(key){state.selected=state.selected.filter(x=>x.key!==key)}
+function loadTemplate(t){resetRecipe();state.name=t.name;state.style=t.style;t.base.forEach(k=>addIngredient(k));t.items.forEach(k=>addIngredient(k));t.mixins.forEach(k=>addIngredient(k));syncSetup()}
+
+$('#getStartedBtn').addEventListener('click',()=>showPage('start'));
+$('#welcomeRecipesBtn').addEventListener('click',()=>showPage('recipes'));
+$$('[data-start]').forEach(b=>b.addEventListener('click',()=>{const x=b.dataset.start;if(x==='idea')showPage('idea');else if(x==='templates')showPage('templates');else{resetRecipe();showPage('setup')}}));
+
+function ideaMatches(prompt){const p=prompt.toLowerCase();let primary;
+ if(p.includes('pistachio')||p.includes('rose'))primary=templates.find(x=>x.id==='pistachio-rose');
+ else if(p.includes('strawberry')||p.includes('cheesecake'))primary=templates.find(x=>x.id==='straw-cheese');
+ else if(p.includes('mango')||p.includes('coconut')||p.includes('sorbet'))primary=templates.find(x=>x.id==='mango-coco');
+ else if(p.includes('peanut')||p.includes('banana'))primary=templates.find(x=>x.id==='pb-banana');
+ else if(p.includes('coffee')||p.includes('caramel'))primary=templates.find(x=>x.id==='coffee');
+ else primary=templates.find(x=>x.id==='protein-choc');
+ const rest=templates.filter(x=>x.id!==primary.id).sort(()=>Math.random()-.5).slice(0,2);return [primary,...rest];
+}
+function renderIdeaResults(list){$('#ideaResults').innerHTML=list.map(t=>`<button class="idea-card" data-idea-id="${t.id}"><span class="idea-art">${t.icon}</span><span><strong>${esc(t.name)}</strong><small>${t.base.concat(t.items).slice(0,4).map(k=>ingredients[k].name).join(' · ')}</small></span></button>`).join('');$$('[data-idea-id]').forEach(b=>b.addEventListener('click',()=>{const t=templates.find(x=>x.id===b.dataset.ideaId);loadTemplate(t);showPage('setup')}))}
+$('#generateIdeasBtn').addEventListener('click',()=>renderIdeaResults(ideaMatches($('#ideaPrompt').value.trim()||'protein')));
+$('#surpriseBtn').addEventListener('click',()=>renderIdeaResults([...templates].sort(()=>Math.random()-.5).slice(0,3)));
+$$('[data-prompt]').forEach(b=>b.addEventListener('click',()=>{$('#ideaPrompt').value=b.dataset.prompt;renderIdeaResults(ideaMatches(b.dataset.prompt))}));
+function renderTemplates(){ $('#templateGrid').innerHTML=templates.map(t=>`<button class="food-card" data-template="${t.id}"><span class="food-image">${t.icon}</span><span class="food-copy"><strong>${esc(t.name)}</strong><small>${t.base.concat(t.items).slice(0,3).map(k=>ingredients[k].name).join(' · ')}</small></span></button>`).join('');$$('[data-template]').forEach(b=>b.addEventListener('click',()=>{loadTemplate(templates.find(x=>x.id===b.dataset.template));showPage('setup')}))}
+renderTemplates();
+
+$('#clearNameBtn').addEventListener('click',()=>{$('#recipeName').value='';state.name='';$('#recipeName').focus()});
+$('#recipeName').addEventListener('input',e=>state.name=e.target.value);
+$('#recipeStyle').addEventListener('change',e=>state.style=e.target.value);
+$('#machineSelect').addEventListener('change',e=>state.machine=e.target.value);
+$('#setupNextBtn').addEventListener('click',()=>{state.name=$('#recipeName').value.trim()||'Untitled recipe';state.style=$('#recipeStyle').value;state.machine=$('#machineSelect').value;showPage('base')});
+
+function amountToGrams(item){const d=ingredients[item.key];if(item.unit==='g')return item.amount;if(item.unit==='oz')return item.amount*28.35;if(item.unit==='cup')return item.amount*(d.category==='base'?240: d.grams/(d.amount||1));if(item.unit==='tbsp')return item.amount*(d.grams/(d.amount||1));if(item.unit==='tsp')return item.amount*(d.grams/(d.amount||1));if(item.unit==='scoop')return item.amount*(d.grams/(d.amount||1));if(item.unit==='item')return item.amount*(d.grams/(d.amount||1));return item.grams||d.grams}
+function selectedBy(cat){return state.selected.filter(x=>ingredients[x.key]?.category===cat)}
+function renderFoodGrid(container,keys,selectedClass=true){$(container).innerHTML=keys.map(k=>{const d=ingredients[k],sel=state.selected.some(x=>x.key===k);return `<button class="food-card ${sel?'selected':''}" data-food="${k}"><span class="food-image">${d.icon}</span><span class="food-copy"><strong>${esc(d.name)}</strong><small>${esc(d.note)}</small></span></button>`}).join('');$$(`${container} [data-food]`).forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.food;if(state.selected.some(x=>x.key===k))removeIngredient(k);else addIngredient(k);if(currentPage==='base')renderBase();if(currentPage==='ingredients')renderIngredients();if(currentPage==='support')renderSupport();if(currentPage==='mixins')renderMixins()}))}
+function renderSelected(container,items){$(container).innerHTML=items.length?items.map(item=>{const d=ingredients[item.key],g=amountToGrams(item);return `<div class="selected-row" data-selected-key="${item.key}"><div class="selected-top"><span class="mini-art">${d.icon}</span><span class="selected-title"><strong>${esc(d.name)}</strong><small>${esc(d.note)}</small></span><button class="remove-btn" data-remove="${item.key}">×</button></div><div class="amount-row"><button data-minus="${item.key}">−</button><input data-amount="${item.key}" type="number" min="0" step="0.125" value="${Number(item.amount.toFixed(3))}"><select data-unit="${item.key}">${['cup','tbsp','tsp','scoop','g','oz','item'].map(u=>`<option ${item.unit===u?'selected':''}>${u}</option>`).join('')}</select><button data-plus="${item.key}">＋</button></div><div class="quick-fractions">${[.125,.25,.5,.75,1].map(v=>`<button data-fraction="${item.key}" data-value="${v}">${v===.125?'⅛':v===.25?'¼':v===.5?'½':v===.75?'¾':'1'}</button>`).join('')}</div><div class="gram-note">Approximately ${Math.round(g*10)/10} g</div></div>`}).join(''):'<div class="empty">Nothing selected yet.</div>';
+ bindAmountControls(container);
+}
+function bindAmountControls(container){$$(`${container} [data-remove]`).forEach(b=>b.addEventListener('click',()=>{removeIngredient(b.dataset.remove);rerenderCurrent()}));$$(`${container} [data-minus]`).forEach(b=>b.addEventListener('click',()=>adjust(b.dataset.minus,-.125)));$$(`${container} [data-plus]`).forEach(b=>b.addEventListener('click',()=>adjust(b.dataset.plus,.125)));$$(`${container} [data-amount]`).forEach(i=>i.addEventListener('change',()=>{const x=state.selected.find(a=>a.key===i.dataset.amount);x.amount=Math.max(0,Number(i.value)||0);rerenderCurrent()}));$$(`${container} [data-unit]`).forEach(s=>s.addEventListener('change',()=>{const x=state.selected.find(a=>a.key===s.dataset.unit);x.unit=s.value;rerenderCurrent()}));$$(`${container} [data-fraction]`).forEach(b=>b.addEventListener('click',()=>{const x=state.selected.find(a=>a.key===b.dataset.fraction);x.amount=Number(b.dataset.value);rerenderCurrent()}))}
+function adjust(key,delta){const x=state.selected.find(a=>a.key===key);x.amount=Math.max(0,Math.round((x.amount+delta)*1000)/1000);rerenderCurrent()}
+function rerenderCurrent(){if(currentPage==='base')renderBase();if(currentPage==='ingredients')renderIngredients();if(currentPage==='support')renderSupport();if(currentPage==='mixins')renderMixins()}
+
+const baseKeys=['uf0','uf2','uf4','whole','skim','almond','oat','coconutDrink','cannedCoconut','halfhalf','coffee','proteinShake'];
+function renderBase(){renderFoodGrid('#baseGrid',baseKeys);const items=selectedBy('base');renderSelected('#baseSelected',items);$('#baseCount').textContent=`${items.length} selected`;$('#baseNextBtn').disabled=!items.length}
+$('#baseNextBtn').addEventListener('click',()=>{if(!selectedBy('base').length)return toast('Choose at least one base');showPage('ingredients')});
+
+const categoryKeys={protein:['whey','casein','pbpowder'],fruit:['strawberry','banana','mango','pineapple'],flavor:['cocoa','vanilla','rose','cinnamon'],creamy:['greek','cottage','creamCheese','pistachio','peanut'],sweetener:['sugar','allulose','maple']};
+function renderIngredients(){$('#categoryTabs').innerHTML=Object.keys(categoryKeys).map(c=>`<button class="category-tab ${state.currentCategory===c?'active':''}" data-cat="${c}">${CAT_NAMES[c]}</button>`).join('');$$('[data-cat]').forEach(b=>b.addEventListener('click',()=>{state.currentCategory=b.dataset.cat;renderIngredients()}));renderFoodGrid('#ingredientGrid',categoryKeys[state.currentCategory]);const items=state.selected.filter(x=>!['base','support','mixin'].includes(ingredients[x.key]?.category));renderSelected('#ingredientSelected',items);$('#ingredientCount').textContent=`${items.length} selected`}
+$('#ingredientsNextBtn').addEventListener('click',()=>showPage('support'));
+$('#customIngredientBtn').addEventListener('click',()=>$('#customModal').classList.add('open'));$$('[data-close-modal]').forEach(b=>b.addEventListener('click',()=>$('#customModal').classList.remove('open')));
+$('#saveCustomBtn').addEventListener('click',()=>{const name=$('#customName').value.trim();if(!name)return toast('Enter a name');const key='custom_'+Date.now(),cat=$('#customCategory').value,amount=Number($('#customAmount').value)||1,unit=$('#customUnit').value;ingredients[key]={name,category:cat,icon:'➕',amount,unit,grams:unit==='g'?amount:30,density:1,water:.5,protein:.05,fat:.05,sugar:.05,support:.05,thickness:.05,note:'Custom ingredient. Formula properties are estimated.'};persistCustomIngredients();addIngredient(key);$('#customModal').classList.remove('open');$('#customName').value='';state.currentCategory=cat in categoryKeys?cat:'flavor';renderIngredients();toast('Custom ingredient added')});
+
+const supportKeys=['pudding','guar','xanthan','milkPowder'];
+function formula(){let mass=0,vol=0,water=0,protein=0,fat=0,sugar=0,support=0,thickness=0;state.selected.filter(x=>ingredients[x.key]?.category!=='mixin').forEach(x=>{const d=ingredients[x.key],g=amountToGrams(x);mass+=g;vol+=g/(d.density||1);water+=g*d.water;protein+=g*d.protein;fat+=g*d.fat;sugar+=g*d.sugar;support+=g*d.support;thickness+=g*d.thickness});const cap=MODEL[state.machine].capacity,fill=vol/cap*100,solids=mass?100*(mass-water)/mass:0,proteinPct=mass?protein/mass*100:0,fatPct=mass?fat/mass*100:0,sugarPct=mass?sugar/mass*100:0;const gums=selectedBy('support').filter(x=>['guar','xanthan'].includes(x.key)).reduce((a,x)=>a+amountToGrams(x),0);let level='good',title='Formula looks workable',message='The current formula has reasonable body and freezing support.';if(fill>100){level='bad';title='Likely to overflow';message='The estimated volume exceeds the selected container. Reduce the base before freezing.'}else if(gums>1.3||thickness/mass>.22){level='bad';title='Likely too thick or gummy';message='There is too much combined thickening. Reduce gums, pudding mix, casein, banana, or other dense ingredients.'}else if((proteinPct>7&&fatPct<2.5&&sugarPct<5&&support/mass<.12)||solids<15){level='bad';title='Likely icy, powdery, or chalky';message='The formula is lean or low in solids. Add body or freezing-point support before freezing.'}else if(fill>90||proteinPct>7||solids<20){level='warn';title='Usable, but expect a re-spin';message='The formula may process dry or hard. Consider one of the suggestions below.'}return{mass,vol,fill,solids,proteinPct,fatPct,sugarPct,gums,level,title,message}}
+function renderSupport(){const f=formula();$('#formulaStatus').innerHTML=`<div class="status-card ${f.level}"><strong>${f.title}</strong><p>${f.message}</p></div>`;$('#fillText').textContent=`${Math.round(f.fill)}%`;$('#fillBar').style.width=`${Math.min(f.fill,100)}%`;$('#fillBar').className=f.fill>100?'bad':f.fill>90?'warn':'';renderSuggestions(f);renderFoodGrid('#supportGrid',supportKeys);const items=selectedBy('support');renderSelected('#supportSelected',items);$('#supportCount').textContent=`${items.length} selected`}
+function renderSuggestions(f){let keys=[];if(f.solids<18)keys.push('milkPowder','greek');if(f.proteinPct>7)keys.push('greek','creamCheese','allulose');if(f.sugarPct<5)keys.push('allulose');if(f.fatPct<2)keys.push('creamCheese');if(!keys.length)keys=['vanilla','allulose'];keys=[...new Set(keys)].filter(k=>!state.selected.some(x=>x.key===k)).slice(0,4);$('#suggestionList').innerHTML=keys.length?keys.map(k=>{const d=ingredients[k];return `<div class="suggestion"><span class="mini-art">${d.icon}</span><span><strong>${esc(d.name)}</strong><small>${esc(d.note)}</small></span><button data-add-suggestion="${k}">Add</button></div>`}).join(''):'<div class="empty">The formula does not need an obvious correction right now.</div>';$$('[data-add-suggestion]').forEach(b=>b.addEventListener('click',()=>{addIngredient(b.dataset.addSuggestion);renderSupport()}))}
+$('#supportNextBtn').addEventListener('click',()=>showPage('mixins'));
+
+const mixinKeys=['cookies','chips','nuts','brownie'];
+function renderMixins(){renderFoodGrid('#mixinGrid',mixinKeys);const items=selectedBy('mixin');renderSelected('#mixinSelected',items);$('#mixinCount').textContent=`${items.length} selected`}
+$('#mixinsNextBtn').addEventListener('click',()=>showPage('mixing'));
+
+const methods=[
+ {id:'frother',icon:'🌀',name:'Handheld milk frother or small whisk',desc:'Best when the recipe is mostly liquid plus powders, extracts, and sweetener.'},
+ {id:'immersion',icon:'🥣',name:'Immersion blender',desc:'Best for fruit, yogurt, cottage cheese, cream cheese, banana, or nut butter.'},
+ {id:'countertop',icon:'⚙️',name:'Countertop blender',desc:'Best for tougher fruit or chunky ingredients. Blend fully, then pour back into the Creami container.'}
+];
+function recommendedMethod(){const keys=state.selected.map(x=>x.key);if(keys.some(k=>['strawberry','banana','mango','pineapple','cottage','creamCheese','pistachio','peanut'].includes(k)))return 'immersion';return 'frother'}
+function renderMixing(){const rec=recommendedMethod();if(!state.method)state.method=rec;$('#methodGrid').innerHTML=methods.map(m=>`<button class="method-card ${state.method===m.id?'selected':''} ${rec===m.id?'recommended':''}" data-method="${m.id}"><span class="method-art">${m.icon}</span><span><strong>${m.name}</strong><small>${m.desc}</small></span></button>`).join('');$$('[data-method]').forEach(b=>b.addEventListener('click',()=>{state.method=b.dataset.method;renderMixing()}));const text=state.method==='frother'?'Mix until every powder is dissolved and no dry pockets remain. A handheld milk frother works for a fully liquid base, but avoid excessive foam.':state.method==='immersion'?'Use an immersion blender until fruit, dairy, and nut ingredients are completely smooth. Scrape the sides and blend again before freezing.':'Blend until completely smooth, then pour the mixture back into the Creami container. Do not freeze it in the blender jar.';$('#mixingNote').textContent=text}
+$('#mixingNextBtn').addEventListener('click',()=>showPage('review'));
+
+function program(){if(state.style==='sorbet')return 'Sorbet';if(state.style==='yogurt')return 'Frozen Yogurt';if(state.style==='smoothie')return 'Smoothie Bowl';if(state.style==='protein')return 'Lite Ice Cream';if(state.style==='gelato')return 'Gelato or Ice Cream';return 'Ice Cream'}
+function displayAmount(x){return `${Number(x.amount.toFixed(3))} ${x.unit}`}
+function renderReview(){const f=formula();$('#reviewTitle').textContent=state.name||'Untitled recipe';$('#reviewMeta').innerHTML=`<div class="summary-item"><strong>Machine</strong><span>${MODEL[state.machine].name}</span></div><div class="summary-item"><strong>First program</strong><span>${program()}</span></div><div class="summary-item"><strong>Portion control</strong><span>${MODEL[state.machine].portion}</span></div><div class="summary-item"><strong>Mixing method</strong><span>${methods.find(x=>x.id===state.method)?.name||'Not selected'}</span></div>`;$('#reviewIngredients').innerHTML=state.selected.map(x=>{const d=ingredients[x.key];return `<div class="ingredient-summary"><span class="mini-art">${d.icon}</span><div><strong>${esc(d.name)}</strong><span>${displayAmount(x)} · about ${Math.round(amountToGrams(x))} g</span></div></div>`}).join('')||'<div class="empty">No ingredients selected.</div>';$('#reviewWarnings').innerHTML=`<div class="status-card ${f.level}"><strong>${f.title}</strong><p>${f.message}</p></div>`;if(state.photo||state.cover){$('#reviewPhoto').src=state.photo||state.cover;$('#reviewPhoto').hidden=false;$('#reviewPlaceholder').hidden=true}else{$('#reviewPhoto').hidden=true;$('#reviewPlaceholder').hidden=false}}
+$('#photoInput').addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{state.photo=r.result;state.cover='';renderReview()};r.readAsDataURL(file)});
+$('#generateCoverBtn').addEventListener('click',()=>{const emoji=templates.find(t=>t.name===state.name)?.icon||state.selected.map(x=>ingredients[x.key]?.icon).find(Boolean)||'🍨';const canvas=document.createElement('canvas');canvas.width=1000;canvas.height=625;const c=canvas.getContext('2d');const dark=document.documentElement.dataset.theme==='dark';c.fillStyle=dark?'#27292c':'#eceae4';c.fillRect(0,0,1000,625);c.fillStyle=dark?'#f5f5f2':'#191a1c';c.font='170px sans-serif';c.textAlign='center';c.fillText(emoji,500,285);c.font='bold 52px sans-serif';c.fillText(state.name||'CreamyTuner recipe',500,410);c.font='30px sans-serif';c.fillStyle=dark?'#b5b7ba':'#64676c';c.fillText(`${MODEL[state.machine].name} · ${program()}`,500,465);state.cover=canvas.toDataURL('image/png');state.photo='';renderReview()});
+$('#editRecipeBtn').addEventListener('click',()=>showPage('ingredients'));
+function savedRecipes(){try{return JSON.parse(storageGet('creamytunerGuidedRecipes','[]'))}catch{return []}}
+function saveRecipes(r){storageSet('creamytunerGuidedRecipes',JSON.stringify(r))}
+function recipeObject(){return{id:Date.now(),name:state.name||'Untitled recipe',style:state.style,machine:state.machine,selected:state.selected,method:state.method,photo:state.photo||state.cover,created:new Date().toISOString()}}
+$('#saveRecipeBtn').addEventListener('click',()=>{const list=savedRecipes();list.unshift(recipeObject());saveRecipes(list);toast('Recipe saved');showPage('recipes')});
+function shopping(){try{return JSON.parse(storageGet('creamytunerGuidedShopping','[]'))}catch{return []}}
+function saveShopping(x){storageSet('creamytunerGuidedShopping',JSON.stringify(x))}
+function addCurrentToShopping(){const list=shopping();state.selected.filter(x=>ingredients[x.key]?.category!=='mixin').forEach(x=>{const d=ingredients[x.key];const id=d.name.toLowerCase();const existing=list.find(i=>i.id===id);if(existing)existing.amount=`${existing.amount}; ${displayAmount(x)}`;else list.push({id,name:d.name,amount:displayAmount(x),checked:false})});saveShopping(list);toast('Added to Shopping List')}
+$('#addShoppingBtn').addEventListener('click',addCurrentToShopping);
+
+function renderRecipes(){const list=savedRecipes();$('#recipeList').innerHTML=list.length?list.map(r=>`<article class="recipe-card"><div class="recipe-thumb">${r.photo?`<img src="${r.photo}" alt="${esc(r.name)}">`:'🍨'}</div><div><h3>${esc(r.name)}</h3><p>${MODEL[r.machine]?.name||'CREAMi'} · ${r.selected.length} ingredients</p><div class="recipe-actions"><button data-load="${r.id}">Open</button><button data-list="${r.id}">Shopping List</button><button data-delete="${r.id}">Delete</button></div></div></article>`).join(''):'<div class="empty">No saved recipes yet.</div>';$$('[data-load]').forEach(b=>b.addEventListener('click',()=>{const r=list.find(x=>x.id==b.dataset.load);Object.assign(state,{name:r.name,style:r.style,machine:r.machine,selected:r.selected,method:r.method,photo:r.photo||'',cover:''});syncSetup();showPage('review')}));$$('[data-list]').forEach(b=>b.addEventListener('click',()=>{const r=list.find(x=>x.id==b.dataset.list);const old=state.selected;state.selected=r.selected;addCurrentToShopping();state.selected=old}));$$('[data-delete]').forEach(b=>b.addEventListener('click',()=>{saveRecipes(list.filter(x=>x.id!=b.dataset.delete));renderRecipes()}))}
+function renderShopping(){const list=shopping();$('#shoppingList').innerHTML=list.length?list.map(x=>`<label class="shopping-item ${x.checked?'checked':''}"><input type="checkbox" data-shop-check="${esc(x.id)}" ${x.checked?'checked':''}><span><strong>${esc(x.name)}</strong><br><small>${esc(x.amount)}</small></span></label>`).join(''):'<div class="empty">Your Shopping List is empty.</div>';$$('[data-shop-check]').forEach(c=>c.addEventListener('change',()=>{const l=shopping(),x=l.find(i=>i.id===c.dataset.shopCheck);x.checked=c.checked;saveShopping(l);renderShopping()}))}
+$('#clearShoppingBtn').addEventListener('click',()=>{saveShopping([]);renderShopping();toast('Shopping List cleared')});
+
+function setTheme(theme){document.documentElement.dataset.theme=theme;storageSet('creamytunerGuidedTheme',theme);$('#lightThemeBtn').classList.toggle('active',theme==='light');$('#darkThemeBtn').classList.toggle('active',theme==='dark');document.querySelector('meta[name="theme-color"]').content=theme==='dark'?'#151617':'#f5f4f0'}
+$('#lightThemeBtn').addEventListener('click',()=>setTheme('light'));$('#darkThemeBtn').addEventListener('click',()=>setTheme('dark'));setTheme(storageGet('creamytunerGuidedTheme','light'));
+
+renderIdeaResults(ideaMatches('protein'));syncSetup();
+</script>
+</body></html>
